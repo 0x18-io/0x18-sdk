@@ -42,6 +42,7 @@
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "semaphore-async-await": "^1.5.1"
   }
 }

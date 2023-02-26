@@ -1,8 +1,7 @@
-import Api from './api';
-import { gql } from 'graphql-request';
 import IConfiguration from './configuration/IConfiguration';
 import Wallets from './resources/wallets';
 import graphqlClient from './api';
+import { inRange } from 'lodash';
 
 class Client {
     public config: IConfiguration;
@@ -11,20 +10,19 @@ class Client {
 
     constructor(config: IConfiguration = {}) {
         const defaultOptions = {
-            endpoint: 'https://api.0x18.io/graphql',
+            endpoint: 'https://api.0x18.io',
+            numberOfApiCallRetries: 0,
         };
         this.config = { ...defaultOptions, ...config };
         this.init();
     }
     public init() {
-        const decorators = [];
-        if (this.config.numberOfApiCallRetries && this.config.numberOfApiCallRetries > 0) {
-            if (this.config.numberOfApiCallRetries > 6) {
-                throw new Error('numberOfApiCallRetries can be set to a number from 0 - 6.');
-            }
-            // decorators.push(new RetryDecorator(this.config.numberOfApiCallRetries));
+        if (
+            this.config.numberOfApiCallRetries &&
+            !inRange(this.config.numberOfApiCallRetries, 0, 6)
+        ) {
+            throw new Error('numberOfApiCallRetries can be set to a number from 0 - 6.');
         }
-        // ApiDecoratorService.getInstance().setDecorators(decorators);
         graphqlClient.getInstance().setConfig(this.config);
 
         this._wallets = undefined;
@@ -35,9 +33,8 @@ class Client {
      * @returns Wallets
      */
     get wallets() {
-        if (!this._wallets) {
-            this._wallets = new Wallets(this.config);
-        }
+        if (!this._wallets) this._wallets = new Wallets(this.config);
+
         return this._wallets;
     }
 }
