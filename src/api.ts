@@ -38,8 +38,12 @@ class ApiDecoratorService {
         return this._client;
     }
 
-    getNodes(name: string, data: any) {
-        return data[name].edges.map((edge: any) => edge.node);
+    static getEdges(name: string, data: any) {
+        return data[name].edges;
+    }
+
+    static getNodes(name: string, data: any) {
+        return data[name].edges.map((e: any) => e.node);
     }
 
     async request(query: RequestDocument, variables?: Variables) {

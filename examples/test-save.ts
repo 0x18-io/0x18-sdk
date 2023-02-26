@@ -15,12 +15,15 @@ const ox = new Client({
     });
 
     const singleNode = results[0];
-    const { id, address } = singleNode;
-    console.log(id, address);
+    console.log('FIRST FETCH', singleNode);
+    singleNode.metadata.test = 'test231'
+    console.log('AFTER SETTING METADATA', singleNode)
 
-    await singleNode.getLedgers();
+    console.log('BEGIN SAVING')
+    const saved = await singleNode.save();
+    console.log('SAVING DONE', saved)
 
-    console.log(singleNode);
-    console.log(singleNode.ledgers?.[0]);
-    console.log(singleNode.ledgers?.[0].balance.toString());
+    console.log('REFETCHING')
+    const refetched = await singleNode.refetch()
+    console.log('REFETCHING DONE', refetched)
 })();

@@ -10,8 +10,10 @@ export interface WalletsInput {
     query?: string;
 }
 
+interface IEnumWalletQueryNodeItems extends Array<keyof IWalletQueryNode> {}
+
 export interface IWalletQueryOptions {
-    attributes?: any;
+    attributes?: IEnumWalletQueryNodeItems;
 }
 
 export interface IWalletLedgerBalance {
@@ -19,6 +21,21 @@ export interface IWalletLedgerBalance {
     balance?: string;
     suffix?: string;
     precision?: number;
+}
+
+export interface IWalletQueryNode {
+    id?: string;
+    address?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    // ledgers?: [
+    //     {
+    //         id?: string;
+    //         balance?: string;
+    //         suffix?: string;
+    //         precision?: number;
+    //     }
+    // ];
 }
 
 export interface IWalletQuery {
@@ -31,20 +48,7 @@ export interface IWalletQuery {
     edges?: [
         {
             cursor?: string;
-            node?: {
-                id?: string;
-                address?: string;
-                createdAt?: string;
-                updatedAt?: string;
-                ledgers?: [
-                    {
-                        id?: string;
-                        balance?: string;
-                        suffix?: string;
-                        precision?: number;
-                    }
-                ];
-            };
+            node?: IWalletQueryNode;
         }
     ];
 }

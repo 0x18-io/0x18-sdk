@@ -8,7 +8,8 @@
     "prepare": "yarn build",
     "build:clean": "rm -rf dist",
     "build": "tsc --project tsconfig.json",
-    "testscript": "ts-node --project tsconfig.json examples/test.ts"
+    "testscript:read": "ts-node --project tsconfig.json examples/test.ts",
+    "testscript:update": "ts-node --project tsconfig.json examples/test-save.ts"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/0x18-io/0x18-sdk#readme",
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
     "@types/node": "^18.14.1",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "eslint": "^8.0.1",
@@ -39,6 +41,7 @@
     "ethers": "^6.0.8",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.1.0"
+    "graphql-request": "^5.1.0",
+    "lodash": "^4.17.21"
   }
 }

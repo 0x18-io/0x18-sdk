@@ -1,14 +1,10 @@
 import Api from '../../api';
-import {
-    WalletsInput,
-    IWallets,
-    IWalletQuery,
-    IWalletQueryOptions,
-    IWalletLedgerBalance,
-} from './interfaces';
+import { WalletsInput, IWalletQueryOptions } from './interfaces';
 import IConfiguration from '../../configuration/IConfiguration';
 import * as gqlBuilder from 'gql-query-builder';
 import { PageInfo } from '../constants';
+import { enumerable } from '../../utils/decorators';
+import { isEqual } from 'lodash';
 
 class WalletLedgerBalance {
     protected data;
@@ -24,7 +20,7 @@ class WalletLedgerBalance {
         }
     }
 
-    private addProperty(key: string, value: any) {
+    protected addProperty(key: string, value: any) {
         Object.defineProperty(this, key, {
             get: () => {
                 return value;
@@ -34,26 +30,151 @@ class WalletLedgerBalance {
 }
 
 class Wallet {
-    protected data;
-    protected cursor;
-    constructor(wallet: any) {
-        this.data = wallet.node;
-        this.cursor = wallet.cursor;
+    @enumerable(false)
+    protected dataValues: any;
 
-        for (let key in this.data) {
-            this.addProperty(key, this.data[key]);
+    @enumerable(false)
+    private _previousDataValues: any;
+
+    @enumerable(false)
+    protected cursor: any;
+
+    @enumerable(false)
+    private walletsQuery: any;
+
+    @enumerable(false)
+    private walletsQueryVariables: any;
+
+    constructor(wallet: any) {
+        this._previousDataValues = undefined;
+        this.walletsQuery = undefined;
+        this.walletsQueryVariables = undefined;
+        this.dataValues = undefined;
+        this.cursor = undefined;
+        this.init(wallet, true);
+    }
+
+    private init(wallet: any, firstRun = false) {
+        this._previousDataValues = JSON.parse(JSON.stringify(wallet.node));
+        this.dataValues = JSON.parse(JSON.stringify(wallet.node));
+        this.walletsQuery = wallet.originalQuery;
+        this.walletsQueryVariables = wallet.originalQueryVariables;
+        this.cursor = `${wallet.cursor}`;
+
+        for (let key in this.dataValues) {
+            // TODO: make this cleaner
+            if (['createdAt', 'updatedAt'].includes(key)) {
+                this.dataValues[key] = new Date(this.dataValues[key]);
+            }
+
+            // Convenience helper for metadata
+            if (key === 'metadata' && !this.dataValues[key]) {
+                this.dataValues[key] = {};
+            }
+
+            this.addProperty(key, this.dataValues[key]);
         }
     }
 
     private addProperty(key: string, value: any) {
-        Object.defineProperty(this, key, {
+        let attributes = {
+            configurable: true,
             get: () => {
                 return value;
             },
+        };
+
+        if (key === 'metadata') {
+            // TODO: Why cant i control the logic for the setter?
+            // @ts-ignore
+            attributes = {
+                ...attributes,
+                //@ts-ignore
+                set: (val) => {
+                    // TODO: This doesnt do anything...
+                    this.dataValues[key] = val;
+                },
+            };
+        }
+
+        Object.defineProperty(this, key, attributes);
+    }
+
+    async refetch() {
+        const data = await Api.getInstance().request(this.walletsQuery, {
+            input: {
+                first: 1,
+                address: this.dataValues.address,
+            },
         });
+        this.init(data.wallets.edges[0]);
+        return this;
+    }
+
+    async save() {
+        const inputValue = {
+            metadata: undefined,
+            reference: undefined,
+            description: undefined,
+            displayName: undefined,
+        };
+
+        // Do a delta check to only update changed fields
+        Object.keys(inputValue).forEach((key) => {
+            // @ts-ignore
+            if (!isEqual(this.dataValues[key], this._previousDataValues[key])) {
+                if (
+                    typeof this.dataValues[key] === 'object' &&
+                    JSON.stringify(this.dataValues[key]) === JSON.stringify({}) &&
+                    this.dataValues[key] === null
+                ) {
+                    // We skip if the object is empty and was also null before
+                    return;
+                }
+
+                // @ts-ignore
+                inputValue[key] = this.dataValues[key];
+            }
+        });
+
+        // We do not update if nothing has changed
+        if (!Object.values(inputValue).filter((x) => x).length) {
+            return false;
+        }
+
+        const { query, variables } = gqlBuilder.mutation(
+            {
+                operation: 'walletUpdate',
+                fields: ['id'],
+                variables: {
+                    input: {
+                        value: { id: this.dataValues.id, ...inputValue },
+                        type: 'WalletUpdateInput',
+                        required: true,
+                    },
+                },
+            },
+            undefined,
+            {
+                operationName: 'WalletUpdate',
+            }
+        );
+
+        try {
+            await Api.getInstance().request(query, variables);
+        } catch (error: any) {
+            throw new Error(error.response.errors[0].message);
+        }
+
+        return true;
     }
 
     async getLedgers(): Promise<any> {
+        // TODO: lets use ID here
+        if (!this?.dataValues?.address) {
+            return undefined;
+        }
+
         const { query, variables } = gqlBuilder.query(
             {
                 operation: 'wallets',
@@ -72,7 +193,7 @@ class Wallet {
                 ],
                 variables: {
                     input: {
-                        value: { address: this.data.address },
+                        value: { address: this.dataValues.address },
                         type: 'WalletsInput',
                         required: true,
                     },
@@ -88,20 +209,12 @@ class Wallet {
             .request(query, variables)
             .then((r: any) => {
                 // TODO: Simplify
-                this.data.ledgers = r.wallets.edges[0].node.ledgers.map(
+                this.dataValues.ledgers = r.wallets.edges[0].node.ledgers.map(
                     (l: any) => new WalletLedgerBalance(l)
                 );
-                this.addProperty('ledgers', this.data.ledgers);
-                return this.data.ledgers;
+                this.addProperty('ledgers', this.dataValues.ledgers);
+                return this.dataValues.ledgers;
             });
-    }
-
-    get updatedAt() {
-        return new Date(this.data.updatedAt);
-    }
-
-    get createdAt() {
-        return new Date(this.data.createdAt);
     }
 }
 
@@ -112,25 +225,33 @@ class Wallets {
         this.config = config;
     }
 
+    async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
+        return this.findAll({ ...input, first: 1 }, options).then(
+            (response: any) => response.results?.[0] ?? null
+        );
+    }
+
     async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
         // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
+        const defaultNodeProperties = [
+            'id',
+            'address',
+            'reference',
+            'description',
+            'displayName',
+            'metadata',
+            'transactionsCount',
+            'ledgersCount',
+            'createdAt',
+            'updatedAt',
+        ];
+
         const fields = [
             PageInfo,
             {
                 edges: [
                     {
-                        node: [
-                            'id',
-                            'address',
-                            'reference',
-                            'description',
-                            'displayName',
-                            'metadata',
-                            'transactionsCount',
-                            'ledgersCount',
-                            'createdAt',
-                            'updatedAt',
-                        ],
+                        node: options.attributes ?? defaultNodeProperties,
                     },
                     'cursor',
                 ],
@@ -159,7 +280,14 @@ class Wallets {
 
         return {
             pageInfo: data.wallets.pageInfo,
-            results: data.wallets.edges.map((edge: any) => new Wallet(edge)),
+            results: Api.getEdges('wallets', data).map(
+                (edge: any) =>
+                    new Wallet({
+                        ...edge,
+                        originalQuery: query,
+                        originalQueryVariables: variables,
+                    })
+            ),
         };
     }
 }
