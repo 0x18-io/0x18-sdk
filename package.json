@@ -1,0 +1,44 @@
+{
+  "name": "0x18-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "module": "index.ts",
+  "scripts": {
+    "prepare": "yarn build",
+    "build:clean": "rm -rf dist",
+    "build": "tsc --project tsconfig.json",
+    "testscript": "ts-node --project tsconfig.json examples/test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0x18-io/0x18-sdk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/0x18-io/0x18-sdk/issues"
+  },
+  "homepage": "https://github.com/0x18-io/0x18-sdk#readme",
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "prettier": "^2.8.4",
+    "ts-node": "^10.9.1",
+    "typescript": "*"
+  },
+  "dependencies": {
+    "ethers": "^6.0.8",
+    "gql-query-builder": "^3.8.0",
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.1.0"
+  }
+}
