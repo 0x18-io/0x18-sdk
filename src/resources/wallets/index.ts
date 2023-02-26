@@ -4,7 +4,7 @@ import IConfiguration from '../../configuration/IConfiguration';
 import * as gqlBuilder from 'gql-query-builder';
 import { PageInfo } from '../constants';
 import { enumerable } from '../../utils/decorators';
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 
 class WalletLedgerBalance {
     protected data;
@@ -55,8 +55,8 @@ class Wallet {
     }
 
     private init(wallet: any, firstRun = false) {
-        this._previousDataValues = JSON.parse(JSON.stringify(wallet.node));
-        this.dataValues = JSON.parse(JSON.stringify(wallet.node));
+        this._previousDataValues = cloneDeep(wallet.node);
+        this.dataValues = cloneDeep(wallet.node);
         this.walletsQuery = wallet.originalQuery;
         this.walletsQueryVariables = wallet.originalQueryVariables;
         this.cursor = `${wallet.cursor}`;
