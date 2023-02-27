@@ -49,6 +49,33 @@ class Wallet extends Model {
         return this;
     }
 
+    async archive() {
+        const { query, variables } = gqlBuilder.mutation(
+            {
+                operation: 'walletArchive',
+                fields: ['message'],
+                variables: {
+                    input: {
+                        value: { address: this.#dataValues.address },
+                        type: 'WalletArchiveInput',
+                        required: true,
+                    },
+                },
+            },
+            undefined,
+            {
+                operationName: 'WalletArchive',
+            }
+        );
+
+        try {
+            await Api.getInstance().request(query, variables);
+            return true;
+        } catch (error: any) {
+            throw new Error(error.response.errors[0].message);
+        }
+    }
+
     async #saveHttp() {
         const inputValue = {
             metadata: undefined,
