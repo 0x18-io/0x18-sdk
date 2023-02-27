@@ -77,36 +77,20 @@ class Wallet extends Model {
     }
 
     async #saveHttp() {
-        const inputValue = {
-            metadata: undefined,
-            reference: undefined,
-            description: undefined,
-            displayName: undefined,
-        };
+        const inputValue: { [key: string]: any } = {};
 
         // Do a delta check to only update changed fields
-        this.#updatableAttributes.map((key) => {
+        this.#updatableAttributes.forEach((key) => {
             const currentValue = _.get(this, key);
 
-            if (!_.isEqual(currentValue, this.#previousDataValues[key])) {
-                if (
-                    typeof currentValue === 'object' &&
-                    JSON.stringify(currentValue) === JSON.stringify({}) &&
-                    currentValue === null
-                ) {
-                    // We skip if the object is empty and was also null before
-                    return;
-                }
+            if (_.isEqual(currentValue, this.#previousDataValues[key])) return;
+            if (_.isObject(currentValue) && _.isEmpty(currentValue)) return;
 
-                // @ts-ignore
-                inputValue[key] = currentValue;
-            }
+            inputValue[key] = currentValue;
         });
 
         // We do not update if nothing has changed
-        if (!Object.values(inputValue).filter((x) => x).length) {
-            return false;
-        }
+        if (_.isEmpty(inputValue)) return false;
 
         const { query, variables } = gqlBuilder.mutation(
             {
