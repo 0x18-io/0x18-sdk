@@ -3,7 +3,12 @@ import { IWalletQueryOptions, WalletsInput } from '../interfaces';
 import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import Wallet from './wallet';
+import Wallet, { IWallet } from './wallet';
+
+type WalletsResponse = {
+    pageInfo: any;
+    results: IWallet[];
+};
 
 class Wallets {
     public config: IConfiguration;
@@ -65,7 +70,7 @@ class Wallets {
 
         const data = await Api.getInstance().request(query, variables);
 
-        return {
+        return <WalletsResponse>{
             pageInfo: data.wallets.pageInfo,
             results: Api.getEdges('wallets', data).map(
                 (edge: any) =>

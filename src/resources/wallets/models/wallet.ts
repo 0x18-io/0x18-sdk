@@ -2,10 +2,24 @@ import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
 import WalletLedgerBalance from './wallet-ledger-balance';
-import Model from '../../model';
 import Semaphore from 'semaphore-async-await';
 
-class Wallet extends Model {
+export type IWallet = {
+    readonly id: string | undefined;
+    readonly address: string | undefined;
+    reference: string | undefined;
+    metadata: object | undefined;
+    description: string | undefined;
+    displayName: string | undefined;
+    readonly transactionsCount: number | undefined;
+    readonly ledgersCount: number | undefined;
+    readonly updatedAt: string | undefined;
+    readonly ledgers: any;
+
+    getLedgers: () => Promise<WalletLedgerBalance[]>;
+};
+
+class Wallet<IWallet> {
     #dataValues: any;
     #previousDataValues: any;
     #cursor: any;
@@ -15,7 +29,7 @@ class Wallet extends Model {
     #updatingSemaphore: Semaphore;
 
     constructor(wallet: any) {
-        super(_.cloneDeep(wallet.node));
+        _.defaultsDeep(this, _.cloneDeep(wallet.node), this.defaults);
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
 

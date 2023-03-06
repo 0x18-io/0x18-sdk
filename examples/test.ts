@@ -15,6 +15,7 @@ const ox = new Client({
     });
 
     const singleNode = results[0];
+    // @ts-ignore
     const { id, address } = singleNode;
     console.log(id, address);
 
