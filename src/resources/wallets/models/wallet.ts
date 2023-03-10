@@ -3,21 +3,25 @@ import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
 import WalletLedgerBalance from './wallet-ledger-balance';
 import Semaphore from 'semaphore-async-await';
+import { date, InferType, number, object, string } from 'yup';
 
-export type IWallet = {
-    readonly id: string | undefined;
-    readonly address: string | undefined;
-    reference: string | undefined;
-    metadata: object | undefined;
-    description: string | undefined;
-    displayName: string | undefined;
-    readonly transactionsCount: number | undefined;
-    readonly ledgersCount: number | undefined;
-    readonly updatedAt: string | undefined;
+const walletSchema = object({
+    id: string().required(),
+    address: string().required(),
+    reference: string().notRequired(),
+    metadata: object().notRequired(),
+    description: string().notRequired(),
+    displayName: string().notRequired(),
+    transactionsCount: number().notRequired(),
+    ledgersCount: number().notRequired(),
+    updatedAt: date().notRequired(),
+    createdAt: date().required(),
+});
+
+export interface IWallet extends InferType<typeof walletSchema> {
     readonly ledgers: any;
-
     getLedgers: () => Promise<WalletLedgerBalance[]>;
-};
+}
 
 class Wallet<IWallet> {
     #dataValues: any;
@@ -29,20 +33,16 @@ class Wallet<IWallet> {
     #updatingSemaphore: Semaphore;
 
     constructor(wallet: any) {
-        _.defaultsDeep(this, _.cloneDeep(wallet.node), this.defaults);
+        _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.node)));
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
 
         this.init(wallet, true);
     }
 
-    get defaults(): any {
-        return {};
-    }
-
     private init(wallet: any, firstRun = false) {
-        this.#previousDataValues = _.cloneDeep(wallet.node);
-        this.#dataValues = _.cloneDeep(wallet.node);
+        this.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet.node));
+        this.#dataValues = walletSchema.cast(_.cloneDeep(wallet.node));
         this.#walletsQuery = wallet.originalQuery;
         this.#walletsQueryVariables = wallet.originalQueryVariables;
         this.#cursor = `${wallet.cursor}`;

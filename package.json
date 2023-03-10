@@ -43,6 +43,7 @@
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",
-    "semaphore-async-await": "^1.5.1"
+    "semaphore-async-await": "^1.5.1",
+    "yup": "^1.0.2"
   }
 }
