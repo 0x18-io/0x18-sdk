@@ -8,6 +8,7 @@ import Wallet, { IWallet } from './wallet';
 type WalletsResponse = {
     pageInfo: any;
     results: IWallet[];
+    fetchMore: any;
 };
 
 class Wallets {
@@ -71,6 +72,20 @@ class Wallets {
         const data = await Api.getInstance().request(query, variables);
 
         return <WalletsResponse>{
+            fetchMore: async (fetchMoreInput: WalletsInput = {}) => {
+                // TODO: Clean up how this works
+                if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
+                    fetchMoreInput.after = data.wallets.pageInfo.endCursor;
+                    fetchMoreInput = { ...fetchMoreInput, ...input };
+                }
+
+                return this.findAll(
+                    {
+                        ...(fetchMoreInput ?? input),
+                    },
+                    options
+                );
+            },
             pageInfo: data.wallets.pageInfo,
             results: Api.getEdges('wallets', data).map(
                 (edge: any) =>
