@@ -21,6 +21,8 @@ const walletSchema = object({
 export interface IWallet extends InferType<typeof walletSchema> {
     readonly ledgers: any;
     getLedgers: () => Promise<WalletLedgerBalance[]>;
+    refetch: () => Promise<any>;
+    save: () => Promise<any>;
 }
 
 class Wallet<IWallet> {

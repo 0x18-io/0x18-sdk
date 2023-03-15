@@ -15,5 +15,5 @@
   "plugins": [
     "@typescript-eslint"
   ],
-  "ignorePatterns": ["**/examples/*.ts"]
+  "ignorePatterns": ["**/examples/*.ts", "**/__tests__/**"]
 }
