@@ -3,7 +3,7 @@ import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import Wallet, { IWallet } from './wallet';
-import { WalletEdge, WalletsInput } from '../../../gql-types';
+import { Mutation, WalletCreateInput, WalletEdge, WalletsInput } from '../../../gql-types';
 
 type WalletsResponse = {
     pageInfo: any;
@@ -22,6 +22,39 @@ class Wallets {
 
     constructor(config: IConfiguration = {}) {
         this.config = config;
+    }
+
+    async create(input: WalletCreateInput) {
+        let result: Mutation;
+
+        const { query, variables } = gqlBuilder.mutation(
+            {
+                operation: 'walletCreate',
+                fields: ['id'],
+                variables: {
+                    input: {
+                        value: { ...input },
+                        type: 'WalletCreateInput',
+                        required: true,
+                    },
+                },
+            },
+            undefined,
+            {
+                operationName: 'WalletCreate',
+            }
+        );
+
+        try {
+            result = await Api.getInstance().request(query, variables);
+        } catch (error: any) {
+            throw new Error(error.response.errors[0].message);
+        }
+
+        // TODO: refetching is not cool but for now doing to honor NewWallet type
+        const wallet = await this.findOne({ id: result.walletCreate.id });
+
+        return wallet;
     }
 
     async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
@@ -96,7 +129,7 @@ class Wallets {
             results: Api.getEdges('wallets', data).map(
                 (edge: WalletEdge) =>
                     new Wallet({
-                        ...edge,
+                        edge,
                         originalQuery: query,
                         originalQueryVariables: variables,
                     })

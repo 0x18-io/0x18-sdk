@@ -8,6 +8,7 @@ import {
     Scalars,
     TransactionConnection,
     Wallet as WalletType,
+    WalletEdge,
     WalletLedger,
     WalletsInput,
 } from '../../../gql-types';
@@ -33,6 +34,12 @@ export interface IWallet extends WalletType {
     save: () => Promise<any>;
 }
 
+type NewWallet = {
+    edge: WalletEdge;
+    originalQuery: String;
+    originalQueryVariables: any;
+};
+
 class Wallet implements IWallet {
     #dataValues: any;
     #previousDataValues: any;
@@ -56,20 +63,20 @@ class Wallet implements IWallet {
     transactionsCount?: Maybe<Scalars['Int']>;
     updatedAt?: Maybe<Scalars['Date']>;
 
-    constructor(wallet: any) {
-        _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.node)));
+    constructor(wallet: NewWallet) {
+        _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.edge.node)));
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
 
         this.init(wallet, true);
     }
 
-    private init(wallet: any, firstRun = false) {
-        this.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet.node));
-        this.#dataValues = walletSchema.cast(_.cloneDeep(wallet.node));
+    private init(wallet: NewWallet, firstRun = false) {
+        this.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet.edge.node));
+        this.#dataValues = walletSchema.cast(_.cloneDeep(wallet.edge.node));
         this.#walletsQuery = wallet.originalQuery;
         this.#walletsQueryVariables = wallet.originalQueryVariables;
-        this.#cursor = `${wallet.cursor}`;
+        this.#cursor = `${wallet.edge.cursor}`;
     }
 
     getCursor() {
@@ -147,9 +154,6 @@ class Wallet implements IWallet {
                 operationName: 'WalletUpdate',
             }
         );
-
-        console.log(query);
-        console.log(variables);
 
         try {
             await Api.getInstance().request(query, variables);
