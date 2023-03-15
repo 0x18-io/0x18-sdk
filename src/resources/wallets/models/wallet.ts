@@ -172,7 +172,7 @@ class Wallet implements IWallet {
         }
 
         try {
-            return this.#saveHttp();
+            return await this.#saveHttp();
         } catch (e) {
             throw e;
         } finally {
