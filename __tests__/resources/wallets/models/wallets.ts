@@ -7,44 +7,47 @@ const config = {
     host: 'http://somelocalhost',
     apiKey: '0x123',
 };
+let nockServer: nock.Interceptor;
 
 describe('wallets module', () => {
     beforeAll(() => {
         Api.getInstance().setConfig(config);
+        nockServer = nock(config.host).post('/graphql');
+    });
+    afterAll(() => {
+        nock.cleanAll();
     });
 
     test('findAll success', async () => {
-        nock('http://somelocalhost')
-            .post('/graphql')
-            .reply(200, {
-                data: {
-                    wallets: {
-                        pageInfo: {
-                            hasNextPage: true,
-                            hasPreviousPage: false,
-                            startCursor: 'YXJyYXljb25uZWN0aW9uOjA=',
-                            endCursor: null,
-                        },
-                        edges: [
-                            {
-                                cursor: 'YXJyYXljb25uZWN0aW9uOjA=',
-                                node: {
-                                    id: '0x123',
-                                    address: '0x123',
-                                    reference: 'Testing',
-                                    description: null,
-                                    displayName: null,
-                                    metadata: null,
-                                    transactionsCount: 0,
-                                    ledgersCount: 0,
-                                    createdAt: '2023-03-01T00:00:00.000Z',
-                                    updatedAt: null,
-                                },
-                            },
-                        ],
+        nockServer.reply(200, {
+            data: {
+                wallets: {
+                    pageInfo: {
+                        hasNextPage: true,
+                        hasPreviousPage: false,
+                        startCursor: 'YXJyYXljb25uZWN0aW9uOjA=',
+                        endCursor: null,
                     },
+                    edges: [
+                        {
+                            cursor: 'YXJyYXljb25uZWN0aW9uOjA=',
+                            node: {
+                                id: '0x123',
+                                address: '0x123',
+                                reference: 'Testing',
+                                description: null,
+                                displayName: null,
+                                metadata: null,
+                                transactionsCount: 0,
+                                ledgersCount: 0,
+                                createdAt: '2023-03-01T00:00:00.000Z',
+                                updatedAt: null,
+                            },
+                        },
+                    ],
                 },
-            });
+            },
+        });
 
         const { pageInfo, results } = await new Wallets(config).findAll({ first: 1 });
 
