@@ -52,9 +52,7 @@ class Wallets {
         }
 
         // TODO: refetching is not cool but for now doing to honor NewWallet type
-        const wallet = await this.findOne({ id: result.walletCreate.id });
-
-        return wallet;
+        return this.findOne({ id: result.walletCreate.id });
     }
 
     async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
