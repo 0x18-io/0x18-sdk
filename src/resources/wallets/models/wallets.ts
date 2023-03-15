@@ -1,15 +1,21 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import { IWalletQueryOptions, WalletsInput } from '../interfaces';
 import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import Wallet, { IWallet } from './wallet';
+import { WalletEdge, WalletsInput } from '../../../gql-types';
 
 type WalletsResponse = {
     pageInfo: any;
     results: IWallet[];
     fetchMore: any;
 };
+
+type WalletAttributes = Omit<Omit<Omit<Wallet, 'ledgers'>, 'auditTrail'>, 'transactions'>;
+
+interface IWalletQueryOptions {
+    attributes?: Array<keyof WalletAttributes>;
+}
 
 class Wallets {
     public config: IConfiguration;
@@ -26,7 +32,7 @@ class Wallets {
 
     async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
         // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
-        const defaultNodeProperties = [
+        const defaultNodeProperties: Array<keyof WalletAttributes> = [
             'id',
             'address',
             'reference',
@@ -88,7 +94,7 @@ class Wallets {
             },
             pageInfo: data.wallets.pageInfo,
             results: Api.getEdges('wallets', data).map(
-                (edge: any) =>
+                (edge: WalletEdge) =>
                     new Wallet({
                         ...edge,
                         originalQuery: query,

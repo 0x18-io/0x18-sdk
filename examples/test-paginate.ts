@@ -3,7 +3,7 @@ import Client from '../';
 import process from 'node:process';
 
 const ox = new Client({
-    host: 'https://current--org-0x18-qa-api.apollographos.net',
+    host: 'https://qa--official0x18.apollographos.net',
     apiKey: `${process.env.OX_API_KEY}`,
 });
 

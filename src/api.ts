@@ -70,14 +70,14 @@ class ApiDecoratorService {
         retriesCount = 0
     ): Promise<any> {
         try {
-            return await requestPromise;
+            return requestPromise;
         } catch {
             const updatedCount = retriesCount + 1;
             if (updatedCount > retries) {
                 return null;
             }
             await sleep(everyMs);
-            return await this.requestWithRetry(requestPromise, { retries, everyMs }, updatedCount);
+            return this.requestWithRetry(requestPromise, { retries, everyMs }, updatedCount);
         }
     }
 
@@ -87,7 +87,7 @@ class ApiDecoratorService {
         }
 
         try {
-            return await this.requestWithRetry(this.client.request(query, variables), {
+            return this.requestWithRetry(this.client.request(query, variables), {
                 retries: this.config?.numberOfApiCallRetries
                     ? this.config.numberOfApiCallRetries
                     : 0,
