@@ -1,18 +1,6 @@
 import { WalletLedger as WalletLedgerGql } from '../../../gql-types';
 
-interface IWalletLedger {
-    id: string;
-    balance: BigInt;
-    avatarUrl?: string;
-    description?: string;
-    displayName?: string;
-    precision?: string;
-    prefix?: string;
-    reference?: string;
-    suffix?: string;
-}
-
-class WalletLedger implements IWalletLedger {
+class WalletLedger {
     id: string;
     balance: BigInt;
     avatarUrl?: string;
