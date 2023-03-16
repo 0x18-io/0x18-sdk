@@ -9,13 +9,13 @@ import {
 } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import WalletLedger from './wallet-ledger';
+import WalletLedger from '../pojo/wallet-ledger';
 
 const walletSchema = object({
     id: string().required(),
     address: string().required(),
     reference: string().notRequired(),
-    metadata: object().required().default({}),
+    metadata: object().notRequired().default({}),
     description: string().notRequired(),
     displayName: string().notRequired(),
     transactionsCount: number().notRequired(),
@@ -37,7 +37,7 @@ type NewWallet = {
     originalQueryVariables: any;
 };
 
-class Wallet implements IWallet {
+class WalletModel implements IWallet {
     #dataValues: any;
     #previousDataValues: any;
     #cursor: any;
@@ -60,7 +60,6 @@ class Wallet implements IWallet {
 
     constructor(wallet: NewWallet) {
         const walletCopy = _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.edge.node)));
-
         this.id = walletCopy.id;
         this.address = walletCopy.address;
         this.reference = walletCopy.reference;
@@ -250,4 +249,4 @@ class Wallet implements IWallet {
     }
 }
 
-export default Wallet;
+export default WalletModel;

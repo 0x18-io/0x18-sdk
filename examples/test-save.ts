@@ -19,6 +19,9 @@ const ox = new Client({
 
     const singleNode = results[0];
     console.log('FIRST FETCH', singleNode);
+    console.log(singleNode);
+    // TODO: fix
+    // @ts-ignore
     singleNode.metadata['test'] = new Date().toISOString();
     console.log('AFTER SETTING METADATA', singleNode);
 

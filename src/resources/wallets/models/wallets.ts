@@ -2,8 +2,9 @@ import IConfiguration from '../../../configuration/IConfiguration';
 import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import Wallet, { IWallet } from './wallet';
-import { Mutation, WalletCreateInput, WalletEdge, WalletsInput } from '../../../gql-types';
+import WalletModel, { IWallet } from './wallet-model';
+import { Mutation, WalletEdge, WalletsInput, Wallet as WalletGql } from '../../../gql-types';
+import Wallet, { NewWallet } from '../pojo/wallet';
 
 type WalletsResponse = {
     pageInfo: any;
@@ -11,7 +12,7 @@ type WalletsResponse = {
     fetchMore: any;
 };
 
-type WalletAttributes = Omit<Omit<Omit<Wallet, 'ledgers'>, 'auditTrail'>, 'transactions'>;
+type WalletAttributes = Omit<Omit<Omit<WalletGql, 'ledgers'>, 'auditTrail'>, 'transactions'>;
 
 interface IWalletQueryOptions {
     attributes?: Array<keyof WalletAttributes>;
@@ -24,7 +25,7 @@ class Wallets {
         this.config = config;
     }
 
-    async create(input: WalletCreateInput) {
+    async create(wallet: NewWallet) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(
@@ -33,7 +34,7 @@ class Wallets {
                 fields: ['id'],
                 variables: {
                     input: {
-                        value: { ...input },
+                        value: wallet,
                         type: 'WalletCreateInput',
                         required: true,
                     },
@@ -126,7 +127,7 @@ class Wallets {
             pageInfo: data.wallets.pageInfo,
             results: Api.getEdges('wallets', data).map(
                 (edge: WalletEdge) =>
-                    new Wallet({
+                    new WalletModel({
                         edge,
                         originalQuery: query,
                         originalQueryVariables: variables,
