@@ -2,18 +2,14 @@ import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
 import {
-    AuditTrailConnection,
-    Maybe,
     Query,
-    Scalars,
-    TransactionConnection,
-    Wallet as WalletType,
     WalletEdge,
-    WalletLedger,
     WalletsInput,
+    WalletLedger as WalletLedgerGql,
 } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
-import { date, number, object, string } from 'yup';
+import { date, number, object, string, InferType } from 'yup';
+import WalletLedger from './wallet-ledger';
 
 const walletSchema = object({
     id: string().required(),
@@ -28,7 +24,8 @@ const walletSchema = object({
     createdAt: date().required(),
 });
 
-export interface IWallet extends WalletType {
+export interface IWallet extends InferType<typeof walletSchema> {
+    ledgers?: Array<WalletLedger>;
     getLedgers: () => Promise<WalletLedger[] | undefined>;
     refetch: () => Promise<any>;
     save: () => Promise<any>;
@@ -36,7 +33,7 @@ export interface IWallet extends WalletType {
 
 type NewWallet = {
     edge: WalletEdge;
-    originalQuery: String;
+    originalQuery: string;
     originalQueryVariables: any;
 };
 
@@ -49,22 +46,32 @@ class Wallet implements IWallet {
     #updatableAttributes: string[];
     #updatingSemaphore: Semaphore;
 
-    address?: Maybe<Scalars['String']>;
-    auditTrail?: Maybe<AuditTrailConnection>;
-    createdAt?: Maybe<Scalars['Date']>;
-    description?: Maybe<Scalars['String']>;
-    displayName?: Maybe<Scalars['String']>;
-    id?: Maybe<Scalars['ID']>;
-    ledgers?: Maybe<Array<Maybe<WalletLedger>>>;
-    ledgersCount?: Maybe<Scalars['Int']>;
-    metadata?: Maybe<Scalars['JSON']> = {};
-    reference?: Maybe<Scalars['String']>;
-    transactions?: Maybe<TransactionConnection>;
-    transactionsCount?: Maybe<Scalars['Int']>;
-    updatedAt?: Maybe<Scalars['Date']>;
+    id: string;
+    address: string;
+    reference?: string;
+    metadata?: Record<string, any>;
+    description?: string;
+    displayName?: string;
+    transactionsCount?: number;
+    ledgersCount?: number;
+    updatedAt?: Date;
+    createdAt: Date;
+    ledgers?: WalletLedger[];
 
     constructor(wallet: NewWallet) {
-        _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.edge.node)));
+        const walletCopy = _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.edge.node)));
+
+        this.id = walletCopy.id;
+        this.address = walletCopy.address;
+        this.reference = walletCopy.reference;
+        this.metadata = walletCopy.metadata;
+        this.description = walletCopy.description;
+        this.displayName = walletCopy.displayName;
+        this.transactionsCount = walletCopy.transactionsCount;
+        this.ledgersCount = walletCopy.ledgersCount;
+        this.updatedAt = walletCopy.updatedAt;
+        this.createdAt = walletCopy.createdAt;
+
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
 
@@ -189,7 +196,7 @@ class Wallet implements IWallet {
         // TODO: lazy load?
 
         const walletsInput: WalletsInput = { id: this.#dataValues.address };
-        const ledgersQuery: Array<keyof WalletLedger> = [
+        const ledgersQuery: Array<keyof WalletLedgerGql> = [
             'id',
             'balance',
             'suffix',
@@ -233,7 +240,10 @@ class Wallet implements IWallet {
 
         const walletLedgers: Query = await Api.getInstance().request(query, variables);
 
-        this.#dataValues.ledgers = walletLedgers?.wallets?.edges?.[0]?.node?.ledgers;
+        this.#dataValues.ledgers = walletLedgers?.wallets?.edges?.[0]?.node?.ledgers?.map(
+            (wl) => new WalletLedger(wl!)
+        );
+
         this.ledgers = this.#dataValues.ledgers;
 
         return this.#dataValues.ledgers;

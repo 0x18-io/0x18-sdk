@@ -28,14 +28,6 @@ export interface IWalletQueryNode {
     address?: string;
     createdAt?: string;
     updatedAt?: string;
-    // ledgers?: [
-    //     {
-    //         id?: string;
-    //         balance?: string;
-    //         suffix?: string;
-    //         precision?: number;
-    //     }
-    // ];
 }
 
 export interface IWalletQuery {
