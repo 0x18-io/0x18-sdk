@@ -19,7 +19,7 @@ const ox = new Client({
 
     const singleNode = results[0];
     console.log('FIRST FETCH', singleNode);
-    singleNode.metadata.test = new Date().toISOString();
+    singleNode.metadata['test'] = new Date().toISOString();
     console.log('AFTER SETTING METADATA', singleNode);
 
     console.log('BEGIN SAVING');

@@ -1,15 +1,3 @@
-export interface WalletsInput {
-    address?: string;
-    ledgers?: [string];
-    before?: string;
-    after?: string;
-    first?: number;
-    last?: number;
-    reverse?: boolean;
-    wallets?: [string];
-    query?: string;
-}
-
 interface IEnumWalletQueryNodeItems extends Array<keyof IWalletQueryNode> {}
 
 export interface IWalletQueryOptions {
@@ -43,8 +31,4 @@ export interface IWalletQuery {
             node?: IWalletQueryNode;
         }
     ];
-}
-
-export interface IWallets {
-    findAll(input: WalletsInput): Promise<any>;
 }

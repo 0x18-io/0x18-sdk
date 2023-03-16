@@ -15,7 +15,7 @@ const walletSchema = object({
     id: string().required(),
     address: string().required(),
     reference: string().notRequired(),
-    metadata: object().notRequired(),
+    metadata: object().required().default({}),
     description: string().notRequired(),
     displayName: string().notRequired(),
     transactionsCount: number().notRequired(),
@@ -25,7 +25,7 @@ const walletSchema = object({
 });
 
 export interface IWallet extends InferType<typeof walletSchema> {
-    ledgers?: Array<WalletLedger>;
+    ledgers?: WalletLedger[];
     getLedgers: () => Promise<WalletLedger[] | undefined>;
     refetch: () => Promise<any>;
     save: () => Promise<any>;
@@ -49,7 +49,7 @@ class Wallet implements IWallet {
     id: string;
     address: string;
     reference?: string;
-    metadata?: Record<string, any>;
+    metadata: Record<string, string | string[]> = {};
     description?: string;
     displayName?: string;
     transactionsCount?: number;
@@ -64,7 +64,7 @@ class Wallet implements IWallet {
         this.id = walletCopy.id;
         this.address = walletCopy.address;
         this.reference = walletCopy.reference;
-        this.metadata = walletCopy.metadata;
+        this.metadata = walletCopy.metadata || {};
         this.description = walletCopy.description;
         this.displayName = walletCopy.displayName;
         this.transactionsCount = walletCopy.transactionsCount;
