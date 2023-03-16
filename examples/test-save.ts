@@ -3,29 +3,32 @@ import Client from '../';
 import process from 'node:process';
 
 const ox = new Client({
-    host: 'https://current--org-0x18-qa-api.apollographos.net',
+    host: 'https://qa--official0x18.apollographos.net',
     apiKey: `${process.env.OX_API_KEY}`,
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.wallets.findAll({
-        first: 1,
-    }, {
-        // attributes: ['id', 'address']
-    });
+    const { results, pageInfo } = await ox.wallets.findAll(
+        {
+            first: 1,
+        },
+        {
+            // attributes: ['id', 'address']
+        }
+    );
 
     const singleNode = results[0];
     console.log('FIRST FETCH', singleNode);
-    singleNode.metadata.test = new Date().toISOString()
-    console.log('AFTER SETTING METADATA', singleNode)
+    singleNode.metadata.test = new Date().toISOString();
+    console.log('AFTER SETTING METADATA', singleNode);
 
-    console.log('BEGIN SAVING')
+    console.log('BEGIN SAVING');
     const saved = await singleNode.save();
     // This is for testing race conditions
     // const saved = await Promise.all([singleNode.save(), singleNode.save()]);
-    console.log('SAVING DONE', saved)
+    console.log('SAVING DONE', saved);
 
-    console.log('REFETCHING')
-    const refetched = await singleNode.refetch()
-    console.log('REFETCHING DONE', refetched)
+    console.log('REFETCHING');
+    const refetched = await singleNode.refetch();
+    console.log('REFETCHING DONE', refetched);
 })();
