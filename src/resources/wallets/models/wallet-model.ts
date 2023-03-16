@@ -93,7 +93,7 @@ class WalletModel implements IWallet {
         const data = await Api.getInstance().request(this.#walletsQuery, {
             input: {
                 first: 1,
-                id: this.#dataValues.address,
+                id: this.#dataValues.id,
             },
         });
         this.init(data.wallets.edges[0]);
@@ -107,7 +107,7 @@ class WalletModel implements IWallet {
                 fields: ['message'],
                 variables: {
                     input: {
-                        value: { address: this.#dataValues.address },
+                        value: { id: this.#dataValues.id },
                         type: 'WalletArchiveInput',
                         required: true,
                     },

@@ -2,47 +2,47 @@ import IConfiguration from '../../../configuration/IConfiguration';
 import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import WalletModel from './wallet-model';
-import { Mutation, WalletEdge, WalletsInput, Wallet as WalletGql } from '../../../gql-types';
-import { NewWallet } from '../pojo/wallet';
+import { Mutation, Ledger as LedgerGql, LedgersInput, LedgersEdge } from '../../../gql-types';
+import { NewLedger } from '../pojo/ledger';
+import LedgerModel, { ILedger } from './ledger-model';
 
-type WalletsResponse = {
+type LedgersResponse = {
     pageInfo: any;
-    results: WalletModel[];
+    results: ILedger[];
     fetchMore: any;
 };
 
-type WalletAttributes = Omit<Omit<Omit<WalletGql, 'ledgers'>, 'auditTrail'>, 'transactions'>;
+type LedgerAttributes = Omit<LedgerGql, 'auditTrail'>;
 
-interface IWalletQueryOptions {
-    attributes?: Array<keyof WalletAttributes>;
+interface ILedgerQueryOptions {
+    attributes?: Array<keyof LedgerAttributes>;
 }
 
-class Wallets {
+class Ledgers {
     public config: IConfiguration;
 
     constructor(config: IConfiguration = {}) {
         this.config = config;
     }
 
-    async create(wallet: NewWallet) {
+    async create(ledger: NewLedger) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(
             {
-                operation: 'walletCreate',
+                operation: 'ledgerCreate',
                 fields: ['id'],
                 variables: {
                     input: {
-                        value: wallet,
-                        type: 'WalletCreateInput',
+                        value: ledger,
+                        type: 'LedgerCreateInput',
                         required: true,
                     },
                 },
             },
             undefined,
             {
-                operationName: 'WalletCreate',
+                operationName: 'LedgerCreate',
             }
         );
 
@@ -52,29 +52,30 @@ class Wallets {
             throw new Error(error.response.errors[0].message);
         }
 
-        // TODO: refetching is not cool but for now doing to honor NewWallet type
-        return this.findOne({ id: result.walletCreate.id });
+        // TODO: refetching is not cool but for now doing to honor NewLedger type
+        return this.findOne({ id: result.ledgerCreate.id });
     }
 
-    async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
+    async findOne(input: LedgersInput, options: ILedgerQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
             (response: any) => response.results?.[0] ?? null
         );
     }
 
-    async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
+    async findAll(input: LedgersInput, options: ILedgerQueryOptions = {}) {
         // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
-        const defaultNodeProperties: Array<keyof WalletAttributes> = [
+        const defaultNodeProperties: Array<keyof LedgerAttributes> = [
             'id',
-            'address',
-            'reference',
+            'createdAt',
             'description',
             'displayName',
-            'metadata',
+            'precision',
+            'prefix',
+            'reference',
+            'suffix',
             'transactionsCount',
-            'ledgersCount',
-            'createdAt',
             'updatedAt',
+            'walletsCount',
         ];
 
         const fields = [
@@ -91,29 +92,29 @@ class Wallets {
 
         const { query, variables } = gqlBuilder.query(
             {
-                operation: 'wallets',
+                operation: 'ledgers',
                 fields,
                 variables: {
                     input: {
                         value: { ...input },
-                        type: 'WalletsInput',
+                        type: 'LedgersInput',
                         required: true,
                     },
                 },
             },
             null,
             {
-                operationName: 'Wallets',
+                operationName: 'Ledgers',
             }
         );
 
         const data = await Api.getInstance().request(query, variables);
 
-        return <WalletsResponse>{
-            fetchMore: async (fetchMoreInput: WalletsInput = {}) => {
+        return <LedgersResponse>{
+            fetchMore: async (fetchMoreInput: LedgersInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
-                    fetchMoreInput.after = data.wallets.pageInfo.endCursor;
+                    fetchMoreInput.after = data.ledgers.pageInfo.endCursor;
                     fetchMoreInput = { ...fetchMoreInput, ...input };
                 }
 
@@ -124,10 +125,10 @@ class Wallets {
                     options
                 );
             },
-            pageInfo: data.wallets.pageInfo,
-            results: Api.getEdges('wallets', data).map(
-                (edge: WalletEdge) =>
-                    new WalletModel({
+            pageInfo: data.ledgers.pageInfo,
+            results: Api.getEdges('ledgers', data).map(
+                (edge: LedgersEdge) =>
+                    new LedgerModel({
                         edge,
                         originalQuery: query,
                         originalQueryVariables: variables,
@@ -137,4 +138,4 @@ class Wallets {
     }
 }
 
-export default Wallets;
+export default Ledgers;

@@ -91,11 +91,11 @@ export type LedgerCreateInput = {
 export type LedgerUpdateInput = {
     description?: InputMaybe<Scalars['String']>;
     displayName?: InputMaybe<Scalars['String']>;
-    newPrecision?: InputMaybe<Scalars['Int']>;
-    newPrefix?: InputMaybe<Scalars['String']>;
-    newSuffix?: InputMaybe<Scalars['String']>;
+    ledgerId: Scalars['String'];
+    precision?: InputMaybe<Scalars['Int']>;
+    prefix?: InputMaybe<Scalars['String']>;
     reference?: InputMaybe<Scalars['String']>;
-    suffix: Scalars['String'];
+    suffix?: InputMaybe<Scalars['String']>;
 };
 
 export type LedgersConnection = {
@@ -113,6 +113,7 @@ export type LedgersInput = {
     after?: InputMaybe<Scalars['String']>;
     before?: InputMaybe<Scalars['String']>;
     first?: InputMaybe<Scalars['Int']>;
+    id?: InputMaybe<Scalars['String']>;
     last?: InputMaybe<Scalars['Int']>;
     ledgerIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     query?: InputMaybe<Scalars['String']>;

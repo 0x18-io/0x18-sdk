@@ -12,7 +12,8 @@
         "testscript:read": "ts-node --project tsconfig.json examples/test.ts",
         "testscript:paginate": "ts-node --project tsconfig.json examples/test-paginate.ts",
         "testscript:update": "ts-node --project tsconfig.json examples/test-save.ts",
-        "testscript:create": "ts-node --project tsconfig.json examples/test-create.ts"
+        "testscript:create": "ts-node --project tsconfig.json examples/test-create.ts",
+        "testscript:ledger-read": "ts-node --project tsconfig.json examples/test-ledger-read.ts"
     },
     "repository": {
         "type": "git",
