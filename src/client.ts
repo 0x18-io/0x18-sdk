@@ -12,7 +12,7 @@ class Client {
 
     constructor(config: IConfiguration = {}) {
         const defaultOptions = {
-            endpoint: 'https://api.0x18.io',
+            host: 'https://api.0x18.io',
             numberOfApiCallRetries: 0,
         };
         this.config = { ...defaultOptions, ...config };
