@@ -9,11 +9,11 @@
         "prepare": "yarn build",
         "build:clean": "rm -rf dist",
         "build": "tsc --project tsconfig.json",
-        "testscript:read": "ts-node --project tsconfig.json examples/test.ts",
-        "testscript:paginate": "ts-node --project tsconfig.json examples/test-paginate.ts",
-        "testscript:update": "ts-node --project tsconfig.json examples/test-save.ts",
-        "testscript:create": "ts-node --project tsconfig.json examples/test-create.ts",
-        "testscript:ledger-read": "ts-node --project tsconfig.json examples/test-ledger-read.ts"
+        "testscript:wallet-read": "ts-node --project tsconfig.json examples/wallets/read.ts",
+        "testscript:wallet-paginate": "ts-node --project tsconfig.json examples/wallets/paginate.ts",
+        "testscript:wallet-update": "ts-node --project tsconfig.json examples/wallets/save.ts",
+        "testscript:wallet-create": "ts-node --project tsconfig.json examples/wallets/create.ts",
+        "testscript:ledger-read": "ts-node --project tsconfig.json examples/ledgers/read.ts"
     },
     "repository": {
         "type": "git",

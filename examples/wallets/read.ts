@@ -1,4 +1,4 @@
-import Client from '../';
+import Client from '../..';
 // @ts-ignore
 import process from 'node:process';
 
@@ -8,7 +8,7 @@ const ox = new Client({
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.ledgers.findAll(
+    const { results, pageInfo } = await ox.wallets.findAll(
         {
             first: 1,
         },
@@ -18,10 +18,13 @@ const ox = new Client({
     );
 
     const singleNode = results[0];
-    const { id, description } = singleNode;
+    const { id } = singleNode;
+    await singleNode.getLedgers();
 
     console.log(singleNode.id);
     console.log(singleNode.description);
     console.log(singleNode.displayName);
     console.log(singleNode.reference);
+    console.log(singleNode.ledgers?.[0].id);
+    console.log(singleNode.ledgers?.[0].balance.toString());
 })();

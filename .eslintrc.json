@@ -1,19 +1,15 @@
 {
-  "env": {
-    "es2021": true,
-    "node": true
-  },
-  "extends": [
-    "plugin:prettier/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module",
-    "project": ["tsconfig.json"]
-  },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "ignorePatterns": ["**/examples/*.ts", "**/__tests__/**"]
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": ["plugin:prettier/recommended"],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": ["tsconfig.json"]
+    },
+    "plugins": ["@typescript-eslint"],
+    "ignorePatterns": ["**/examples/**", "**/__tests__/**"]
 }

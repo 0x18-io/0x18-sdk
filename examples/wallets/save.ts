@@ -1,4 +1,4 @@
-import Client from '../';
+import Client from '../..';
 // @ts-ignore
 import process from 'node:process';
 
