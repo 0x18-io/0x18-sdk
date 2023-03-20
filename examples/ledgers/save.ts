@@ -1,4 +1,4 @@
-import Client from '../';
+import Client from '../..';
 // @ts-ignore
 import process from 'node:process';
 
@@ -8,18 +8,21 @@ const ox = new Client({
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.wallets.findAll(
+    const { results, pageInfo } = await ox.ledgers.findAll(
         {
             first: 1,
         },
         {
-            // attributes: ['id', 'address']
+            // attributes: ['id']
         }
     );
 
     const singleNode = results[0];
     console.log('FIRST FETCH', singleNode);
-    singleNode.metadata.test = new Date().toISOString();
+    console.log(singleNode);
+    // TODO: fix
+    // @ts-ignore
+    singleNode.description = 'HELLO FROM SDK';
     console.log('AFTER SETTING METADATA', singleNode);
 
     console.log('BEGIN SAVING');

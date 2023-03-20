@@ -1,4 +1,4 @@
-import Client from '../';
+import Client from '../..';
 // @ts-ignore
 import process from 'node:process';
 
@@ -13,18 +13,18 @@ const ox = new Client({
             first: 1,
         },
         {
-            // attributes: ['id', 'address']
+            // attributes: ['id']
         }
     );
 
     const singleNode = results[0];
-    const { id, address } = singleNode;
+    const { id } = singleNode;
     await singleNode.getLedgers();
 
     console.log(singleNode.id);
     console.log(singleNode.description);
     console.log(singleNode.displayName);
     console.log(singleNode.reference);
-    console.log(singleNode.ledgers?.[0]);
-    console.log(singleNode.ledgers?.[0]?.balance?.toString());
+    console.log(singleNode.ledgers?.[0].id);
+    console.log(singleNode.ledgers?.[0].balance.toString());
 })();

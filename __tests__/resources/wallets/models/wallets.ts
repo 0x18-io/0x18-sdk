@@ -33,7 +33,6 @@ describe('wallets module', () => {
                             cursor: 'YXJyYXljb25uZWN0aW9uOjA=',
                             node: {
                                 id: '0x123',
-                                address: '0x123',
                                 reference: 'Testing',
                                 description: null,
                                 displayName: null,
@@ -53,13 +52,13 @@ describe('wallets module', () => {
 
         expect(pageInfo.hasNextPage).toEqual(true);
         expect(results[0]).toEqual({
-            address: '0x123',
             createdAt: new Date('2023-03-01T00:00:00.000Z'),
             description: null,
             displayName: null,
             id: '0x123',
             ledgersCount: 0,
-            metadata: null,
+            metadata: {},
+            ledgers: undefined,
             reference: 'Testing',
             transactionsCount: 0,
             updatedAt: null,

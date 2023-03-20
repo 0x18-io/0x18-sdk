@@ -1,19 +1,18 @@
 {
-
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "strictNullChecks": true,
-    "strict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "declaration": true,
-    "skipLibCheck": true,
-    "declarationDir": "dist/types",
-    "esModuleInterop": true,
-    "target": "es2022",
-    "module": "commonjs",
-    "outDir": "dist"
-  },
-  "include": ["index.ts","src"],
-  "exclude": ["node_modules", "examples", "__tests__"]
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "strictNullChecks": true,
+        "strict": true,
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "declaration": true,
+        "skipLibCheck": true,
+        "declarationDir": "dist/types",
+        "esModuleInterop": true,
+        "target": "es2022",
+        "module": "commonjs",
+        "outDir": "dist"
+    },
+    "include": ["index.ts", "src"],
+    "exclude": ["node_modules", "examples", "__tests__"]
 }
