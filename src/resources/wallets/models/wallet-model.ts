@@ -93,7 +93,11 @@ class WalletModel implements IWallet {
                 id: this.#dataValues.id,
             },
         });
-        this.init(data.wallets.edges[0]);
+        this.init({
+            edge: data.wallets.edges[0],
+            originalQuery: this.#walletsQuery,
+            originalQueryVariables: this.#walletsQueryVariables,
+        });
         return this;
     }
 
