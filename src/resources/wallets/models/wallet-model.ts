@@ -9,7 +9,7 @@ import {
 } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import WalletLedger from '../pojo/wallet-ledger';
+import WalletLedger from '../dto/wallet-ledger';
 
 const walletSchema = object({
     id: string().required(),

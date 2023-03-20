@@ -9,7 +9,7 @@ import {
     Wallet as WalletGql,
     PageInfo,
 } from '../../../gql-types';
-import { INewWallet } from '../pojo/wallet';
+import { INewWallet } from '../dto/wallet';
 
 type WalletsResponse = {
     pageInfo: PageInfo;

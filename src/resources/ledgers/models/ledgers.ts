@@ -8,7 +8,7 @@ import {
     LedgerEdge,
     PageInfo,
 } from '../../../gql-types';
-import { INewLedger } from '../pojo/ledger';
+import { INewLedger } from '../dto/ledger';
 import LedgerModel, { ILedger } from './ledger-model';
 import { PageInfoFields } from '../../constants';
 
