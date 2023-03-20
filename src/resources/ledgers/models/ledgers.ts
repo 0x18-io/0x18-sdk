@@ -1,13 +1,19 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import { Mutation, Ledger as LedgerGql, LedgersInput, LedgerEdge } from '../../../gql-types';
+import {
+    Mutation,
+    Ledger as LedgerGql,
+    LedgersInput,
+    LedgerEdge,
+    PageInfo,
+} from '../../../gql-types';
 import { INewLedger } from '../pojo/ledger';
 import LedgerModel, { ILedger } from './ledger-model';
+import { PageInfoFields } from '../../constants';
 
 type LedgersResponse = {
-    pageInfo: any;
+    pageInfo: PageInfo;
     results: ILedger[];
     fetchMore: any;
 };
@@ -78,8 +84,9 @@ class Ledgers {
             'walletsCount',
         ];
 
+        // TODO: create a type for this
         const fields = [
-            PageInfo,
+            PageInfoFields,
             {
                 edges: [
                     {

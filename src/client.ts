@@ -1,8 +1,8 @@
+import { inRange } from 'lodash';
 import IConfiguration from './configuration/IConfiguration';
 import Wallets from './resources/wallets';
 import graphqlClient from './api';
-import { inRange } from 'lodash';
-import Ledgers from './resources/ledgers/models/ledgers';
+import Ledgers from './resources/ledgers';
 
 class Client {
     public config: IConfiguration;

@@ -1,13 +1,18 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import WalletModel from './wallet-model';
-import { Mutation, WalletEdge, WalletsInput, Wallet as WalletGql } from '../../../gql-types';
+import {
+    Mutation,
+    WalletEdge,
+    WalletsInput,
+    Wallet as WalletGql,
+    PageInfo,
+} from '../../../gql-types';
 import { INewWallet } from '../pojo/wallet';
 
 type WalletsResponse = {
-    pageInfo: any;
+    pageInfo: PageInfo;
     results: WalletModel[];
     fetchMore: any;
 };
@@ -76,8 +81,17 @@ class Wallets {
             'updatedAt',
         ];
 
+        const pageInfo: Array<keyof PageInfo> = [
+            'hasNextPage',
+            'hasPreviousPage',
+            'startCursor',
+            'endCursor',
+        ];
+
         const fields = [
-            PageInfo,
+            {
+                pageInfo,
+            },
             {
                 edges: [
                     {
