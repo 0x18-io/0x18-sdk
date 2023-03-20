@@ -16,7 +16,11 @@
         "testscript:ledger-read": "ts-node --project tsconfig.json examples/ledgers/read.ts",
         "testscript:ledger-paginate": "ts-node --project tsconfig.json examples/ledgers/paginate.ts",
         "testscript:ledger-update": "ts-node --project tsconfig.json examples/ledgers/save.ts",
-        "testscript:ledger-create": "ts-node --project tsconfig.json examples/ledgers/create.ts"
+        "testscript:ledger-create": "ts-node --project tsconfig.json examples/ledgers/create.ts",
+        "testscript:transaction-read": "ts-node --project tsconfig.json examples/transactions/read.ts",
+        "testscript:transaction-paginate": "ts-node --project tsconfig.json examples/transactions/paginate.ts",
+        "testscript:transaction-update": "ts-node --project tsconfig.json examples/transactions/save.ts",
+        "testscript:transaction-create": "ts-node --project tsconfig.json examples/transactions/create.ts"
     },
     "repository": {
         "type": "git",
