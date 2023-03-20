@@ -4,7 +4,7 @@ import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import WalletModel from './wallet-model';
 import { Mutation, WalletEdge, WalletsInput, Wallet as WalletGql } from '../../../gql-types';
-import { NewWallet } from '../pojo/wallet';
+import { INewWallet } from '../pojo/wallet';
 
 type WalletsResponse = {
     pageInfo: any;
@@ -25,7 +25,7 @@ class Wallets {
         this.config = config;
     }
 
-    async create(wallet: NewWallet) {
+    async create(wallet: INewWallet) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(

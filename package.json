@@ -13,7 +13,10 @@
         "testscript:wallet-paginate": "ts-node --project tsconfig.json examples/wallets/paginate.ts",
         "testscript:wallet-update": "ts-node --project tsconfig.json examples/wallets/save.ts",
         "testscript:wallet-create": "ts-node --project tsconfig.json examples/wallets/create.ts",
-        "testscript:ledger-read": "ts-node --project tsconfig.json examples/ledgers/read.ts"
+        "testscript:ledger-read": "ts-node --project tsconfig.json examples/ledgers/read.ts",
+        "testscript:ledger-paginate": "ts-node --project tsconfig.json examples/ledgers/paginate.ts",
+        "testscript:ledger-update": "ts-node --project tsconfig.json examples/ledgers/save.ts",
+        "testscript:ledger-create": "ts-node --project tsconfig.json examples/ledgers/create.ts"
     },
     "repository": {
         "type": "git",

@@ -96,7 +96,11 @@ class LedgerModel implements ILedger {
                 id: this.#dataValues.id,
             },
         });
-        this.init(data.ledgers.edges[0]);
+        this.init({
+            edge: data.ledgers.edges[0],
+            originalQuery: this.#ledgersQuery,
+            originalQueryVariables: this.#ledgersQuery,
+        });
         return this;
     }
 

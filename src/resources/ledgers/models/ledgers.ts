@@ -3,7 +3,7 @@ import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import { Mutation, Ledger as LedgerGql, LedgersInput, LedgerEdge } from '../../../gql-types';
-import { NewLedger } from '../pojo/ledger';
+import { INewLedger } from '../pojo/ledger';
 import LedgerModel, { ILedger } from './ledger-model';
 
 type LedgersResponse = {
@@ -25,7 +25,7 @@ class Ledgers {
         this.config = config;
     }
 
-    async create(ledger: NewLedger) {
+    async create(ledger: INewLedger) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(

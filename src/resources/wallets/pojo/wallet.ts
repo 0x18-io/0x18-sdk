@@ -4,13 +4,9 @@ import {
     Scalars,
 } from '../../../gql-types';
 
-export type NewWallet = {
-    metadata?: Record<string, string | string[]>;
-    displayName?: InputMaybe<Scalars['String']>;
-    reference?: InputMaybe<Scalars['String']>;
-};
+export interface INewWallet extends WalletsCreateInputGql {}
 
-class Wallet implements NewWallet {
+class Wallet implements INewWallet {
     metadata: Record<string, string | string[]> = {};
     displayName?: InputMaybe<Scalars['String']>;
     reference?: InputMaybe<Scalars['String']>;
