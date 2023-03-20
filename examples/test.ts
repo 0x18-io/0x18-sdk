@@ -13,12 +13,12 @@ const ox = new Client({
             first: 1,
         },
         {
-            // attributes: ['id', 'address']
+            // attributes: ['id']
         }
     );
 
     const singleNode = results[0];
-    const { id, address } = singleNode;
+    const { id } = singleNode;
     await singleNode.getLedgers();
 
     console.log(singleNode.id);

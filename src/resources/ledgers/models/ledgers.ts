@@ -2,7 +2,7 @@ import IConfiguration from '../../../configuration/IConfiguration';
 import { PageInfo } from '../../constants';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import { Mutation, Ledger as LedgerGql, LedgersInput, LedgersEdge } from '../../../gql-types';
+import { Mutation, Ledger as LedgerGql, LedgersInput, LedgerEdge } from '../../../gql-types';
 import { NewLedger } from '../pojo/ledger';
 import LedgerModel, { ILedger } from './ledger-model';
 
@@ -127,7 +127,7 @@ class Ledgers {
             },
             pageInfo: data.ledgers.pageInfo,
             results: Api.getEdges('ledgers', data).map(
-                (edge: LedgersEdge) =>
+                (edge: LedgerEdge) =>
                     new LedgerModel({
                         edge,
                         originalQuery: query,

@@ -13,7 +13,6 @@ import WalletLedger from '../pojo/wallet-ledger';
 
 const walletSchema = object({
     id: string().required(),
-    address: string().required(),
     reference: string().notRequired(),
     metadata: object().notRequired().default({}),
     description: string().notRequired(),
@@ -47,7 +46,6 @@ class WalletModel implements IWallet {
     #updatingSemaphore: Semaphore;
 
     id: string;
-    address: string;
     reference?: string;
     metadata: Record<string, string | string[]> = {};
     description?: string;
@@ -61,7 +59,6 @@ class WalletModel implements IWallet {
     constructor(wallet: NewWallet) {
         const walletCopy = _.defaultsDeep(this, walletSchema.cast(_.cloneDeep(wallet.edge.node)));
         this.id = walletCopy.id;
-        this.address = walletCopy.address;
         this.reference = walletCopy.reference;
         this.metadata = walletCopy.metadata || {};
         this.description = walletCopy.description;
@@ -194,7 +191,7 @@ class WalletModel implements IWallet {
 
         // TODO: lazy load?
 
-        const walletsInput: WalletsInput = { id: this.#dataValues.address };
+        const walletsInput: WalletsInput = { id: this.#dataValues.id };
         const ledgersQuery: Array<keyof WalletLedgerGql> = [
             'id',
             'balance',

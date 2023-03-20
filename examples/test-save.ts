@@ -13,7 +13,7 @@ const ox = new Client({
             first: 1,
         },
         {
-            // attributes: ['id', 'address']
+            // attributes: ['id']
         }
     );
 

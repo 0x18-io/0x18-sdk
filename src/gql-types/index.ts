@@ -35,6 +35,7 @@ export type AuditTrailEdge = {
 };
 
 export type Identity = {
+    avatarUrl?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     email?: Maybe<Scalars['String']>;
     id?: Maybe<Scalars['ID']>;
@@ -58,11 +59,13 @@ export enum IdentityMethod {
 
 export enum IdentityRole {
     Admin = 'ADMIN',
-    User = 'USER',
+    Member = 'MEMBER',
+    Owner = 'OWNER',
 }
 
 export type Ledger = {
     auditTrail?: Maybe<AuditTrailConnection>;
+    avatarUrl?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     description?: Maybe<Scalars['String']>;
     displayName?: Maybe<Scalars['String']>;
@@ -77,21 +80,27 @@ export type Ledger = {
 };
 
 export type LedgerArchiveInput = {
-    suffix: Scalars['String'];
+    id: Scalars['String'];
 };
 
 export type LedgerCreateInput = {
+    description?: InputMaybe<Scalars['String']>;
     displayName?: InputMaybe<Scalars['String']>;
-    precision?: InputMaybe<Scalars['Int']>;
+    precision: Scalars['Int'];
     prefix?: InputMaybe<Scalars['String']>;
     reference?: InputMaybe<Scalars['String']>;
     suffix: Scalars['String'];
 };
 
+export type LedgerEdge = {
+    cursor: Scalars['String'];
+    node?: Maybe<Ledger>;
+};
+
 export type LedgerUpdateInput = {
     description?: InputMaybe<Scalars['String']>;
     displayName?: InputMaybe<Scalars['String']>;
-    ledgerId: Scalars['String'];
+    id: Scalars['String'];
     precision?: InputMaybe<Scalars['Int']>;
     prefix?: InputMaybe<Scalars['String']>;
     reference?: InputMaybe<Scalars['String']>;
@@ -99,14 +108,9 @@ export type LedgerUpdateInput = {
 };
 
 export type LedgersConnection = {
-    edges?: Maybe<Array<Maybe<LedgersEdge>>>;
+    edges?: Maybe<Array<Maybe<LedgerEdge>>>;
     pageInfo?: Maybe<PageInfo>;
     totalCount?: Maybe<Scalars['Int']>;
-};
-
-export type LedgersEdge = {
-    cursor: Scalars['String'];
-    node?: Maybe<Ledger>;
 };
 
 export type LedgersInput = {
@@ -114,8 +118,8 @@ export type LedgersInput = {
     before?: InputMaybe<Scalars['String']>;
     first?: InputMaybe<Scalars['Int']>;
     id?: InputMaybe<Scalars['String']>;
+    ids?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     last?: InputMaybe<Scalars['Int']>;
-    ledgerIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     query?: InputMaybe<Scalars['String']>;
     reverse?: InputMaybe<Scalars['Boolean']>;
 };
@@ -128,17 +132,12 @@ export type MessageOnly = {
     message?: Maybe<Scalars['String']>;
 };
 
-export enum MintOrBurnErrors {
-    AtomicRequestFail = 'ATOMIC_REQUEST_FAIL',
-    DuplicateWalletIdempotencyKey = 'DUPLICATE_WALLET_IDEMPOTENCY_KEY',
-    InsufficientBalance = 'INSUFFICIENT_BALANCE',
-}
-
 export type Mutation = {
-    _service: _Service;
+    _empty?: Maybe<Scalars['String']>;
     ledgerArchive: Message;
     ledgerCreate: Ledger;
     ledgerUpdate: Ledger;
+    metadataValidate: MessageOnly;
     transactionCreate: TransactionCreateResponse;
     transactionUpdate: Transaction;
     walletArchive: MessageOnly;
@@ -156,6 +155,10 @@ export type MutationLedgerCreateArgs = {
 
 export type MutationLedgerUpdateArgs = {
     input: LedgerUpdateInput;
+};
+
+export type MutationMetadataValidateArgs = {
+    metadata?: InputMaybe<Scalars['JSON']>;
 };
 
 export type MutationTransactionCreateArgs = {
@@ -211,24 +214,19 @@ export type Transaction = {
     balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     description?: Maybe<Scalars['String']>;
-    error?: Maybe<Scalars['String']>;
+    errors?: Maybe<Array<Maybe<Scalars['String']>>>;
     hash?: Maybe<Scalars['String']>;
     id?: Maybe<Scalars['ID']>;
     identity?: Maybe<Scalars['String']>;
     ledger?: Maybe<Ledger>;
     metadata?: Maybe<Scalars['JSON']>;
-    method?: Maybe<Scalars['String']>;
+    method: TransactionMethods;
     reference?: Maybe<Scalars['String']>;
     status?: Maybe<Scalars['String']>;
     tags?: Maybe<Array<Maybe<Scalars['String']>>>;
     updatedAt?: Maybe<Scalars['Date']>;
     wallet?: Maybe<Wallet>;
 };
-
-export enum TransactionAction {
-    Burn = 'BURN',
-    Mint = 'MINT',
-}
 
 export type TransactionConnection = {
     edges?: Maybe<Array<Maybe<TransactionEdge>>>;
@@ -242,11 +240,11 @@ export type TransactionCreateInput = {
 };
 
 export type TransactionCreateItem = {
-    action: TransactionAction;
     amount: Scalars['String'];
     idempotencyKey?: InputMaybe<Scalars['String']>;
     ledgerId: Scalars['String'];
     metadata?: InputMaybe<Scalars['JSON']>;
+    method: TransactionMethods;
     walletId: Scalars['String'];
 };
 
@@ -261,18 +259,23 @@ export type TransactionEdge = {
 };
 
 export type TransactionItem = {
-    action: TransactionAction;
     amount: Scalars['String'];
     balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
-    errors?: Maybe<Array<Maybe<MintOrBurnErrors>>>;
+    errors?: Maybe<Array<Maybe<Scalars['String']>>>;
     idempotencyKey?: Maybe<Scalars['String']>;
     ledgerId: Scalars['String'];
     metadata?: Maybe<Scalars['JSON']>;
+    method: TransactionMethods;
     status: TransactionStatus;
     tags?: Maybe<Array<Maybe<Scalars['String']>>>;
     walletId: Scalars['String'];
 };
+
+export enum TransactionMethods {
+    Burn = 'burn',
+    Mint = 'mint',
+}
 
 export enum TransactionStatus {
     Cancelled = 'cancelled',
@@ -324,7 +327,6 @@ export type TransactionsSearchEdge = {
 };
 
 export type Wallet = {
-    address?: Maybe<Scalars['String']>;
     auditTrail?: Maybe<AuditTrailConnection>;
     createdAt?: Maybe<Scalars['Date']>;
     description?: Maybe<Scalars['String']>;
@@ -401,11 +403,11 @@ export type WalletsInput = {
     before?: InputMaybe<Scalars['String']>;
     first?: InputMaybe<Scalars['Int']>;
     id?: InputMaybe<Scalars['String']>;
+    ids?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     last?: InputMaybe<Scalars['Int']>;
     ledgerIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     query?: InputMaybe<Scalars['String']>;
     reverse?: InputMaybe<Scalars['Boolean']>;
-    walletIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
 };
 
 export type _Service = {

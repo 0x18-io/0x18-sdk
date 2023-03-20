@@ -13,7 +13,6 @@ export interface IWalletLedgerBalance {
 
 export interface IWalletQueryNode {
     id?: string;
-    address?: string;
     createdAt?: string;
     updatedAt?: string;
 }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { LedgersEdge } from '../../../gql-types';
+import { LedgerEdge } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 
@@ -25,7 +25,7 @@ export interface ILedger extends InferType<typeof ledgerSchema> {
 }
 
 type NewLedger = {
-    edge: LedgersEdge;
+    edge: LedgerEdge;
     originalQuery: string;
     originalQueryVariables: any;
 };

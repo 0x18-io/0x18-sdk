@@ -66,7 +66,6 @@ class Wallets {
         // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
         const defaultNodeProperties: Array<keyof WalletAttributes> = [
             'id',
-            'address',
             'reference',
             'description',
             'displayName',
