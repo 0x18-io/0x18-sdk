@@ -263,6 +263,7 @@ export type TransactionItem = {
     balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     errors?: Maybe<Array<Maybe<Scalars['String']>>>;
+    id?: Maybe<Scalars['ID']>;
     idempotencyKey?: Maybe<Scalars['String']>;
     ledgerId: Scalars['String'];
     metadata?: Maybe<Scalars['JSON']>;
@@ -294,6 +295,7 @@ export type TransactionsGetInput = {
     after?: InputMaybe<Scalars['String']>;
     before?: InputMaybe<Scalars['String']>;
     first?: InputMaybe<Scalars['Int']>;
+    id?: InputMaybe<Scalars['String']>;
     idempotencyKey?: InputMaybe<Scalars['String']>;
     ids?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     includeBurn?: InputMaybe<Scalars['Boolean']>;

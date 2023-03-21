@@ -3,12 +3,14 @@ import IConfiguration from './configuration/IConfiguration';
 import Wallets from './resources/wallets';
 import graphqlClient from './api';
 import Ledgers from './resources/ledgers';
+import Transactions from './resources/transactions';
 
 class Client {
     public config: IConfiguration;
 
     protected _wallets: Wallets | undefined;
     protected _ledgers: Ledgers | undefined;
+    protected _transactions: Transactions | undefined;
 
     constructor(config: IConfiguration = {}) {
         const defaultOptions = {
@@ -48,6 +50,16 @@ class Client {
         if (!this._ledgers) this._ledgers = new Ledgers(this.config);
 
         return this._ledgers;
+    }
+
+    /**
+     * Getter
+     * @returns Transactions
+     */
+    get transactions() {
+        if (!this._transactions) this._transactions = new Transactions(this.config);
+
+        return this._transactions;
     }
 }
 
