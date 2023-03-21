@@ -56,16 +56,11 @@ class Transactions {
             }
         );
 
-        console.log(query);
-        console.log(JSON.stringify(variables, null, 2));
-
         try {
             result = await Api.getInstance().request(query, variables);
         } catch (error: any) {
             throw new Error(error.response.errors[0].message);
         }
-
-        console.log(result);
 
         return this.findOne({ id: result.transactionCreate.transactions[0].id });
     }
@@ -125,9 +120,6 @@ class Transactions {
                 operationName: 'Transactions',
             }
         );
-
-        console.log(query);
-        console.log(variables);
 
         const data = await Api.getInstance().request(query, variables);
 
