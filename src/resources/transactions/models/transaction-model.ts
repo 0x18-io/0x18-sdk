@@ -1,7 +1,12 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { TransactionEdge, TransactionMethods } from '../../../gql-types';
+import {
+    TransactionEdge,
+    TransactionItem,
+    TransactionMethods,
+    WalletTransaction,
+} from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, object, string, InferType, array, mixed, Maybe } from 'yup';
 
@@ -28,7 +33,7 @@ export interface ITransaction extends InferType<typeof transactionSchema> {
 }
 
 type NewTransaction = {
-    edge: TransactionEdge;
+    edge: WalletTransaction | TransactionItem;
     originalQuery: string;
     originalQueryVariables: any;
 };
@@ -60,7 +65,7 @@ class TransactionModel implements ITransaction {
     constructor(transaction: NewTransaction) {
         const transactionCopy = _.defaultsDeep(
             this,
-            transactionSchema.cast(_.cloneDeep(transaction.edge.node))
+            transactionSchema.cast(_.cloneDeep(transaction.edge))
         );
         this.id = transactionCopy.id;
         this.reference = transactionCopy.reference;
@@ -85,11 +90,11 @@ class TransactionModel implements ITransaction {
     }
 
     private init(transaction: NewTransaction, firstRun = false) {
-        this.#previousDataValues = transactionSchema.cast(_.cloneDeep(transaction.edge.node));
-        this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction.edge.node));
+        this.#previousDataValues = transactionSchema.cast(_.cloneDeep(transaction.edge));
+        this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction.edge));
         this.#transactionsQuery = transaction.originalQuery;
         this.#transactionsQueryVariables = transaction.originalQueryVariables;
-        this.#cursor = `${transaction.edge.cursor}`;
+        // this.#cursor = `${transaction.edge.cursor}`; how to get cursor?
     }
 
     getCursor() {
