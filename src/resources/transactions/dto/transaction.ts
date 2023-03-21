@@ -13,7 +13,7 @@ class Transaction implements INewTransaction {
     };
 
     amount: string;
-    idempotencyKey?: InputMaybe<string> | undefined;
+    idempotencyKey: InputMaybe<string> | undefined;
     ledgerId: string;
     metadata?: any;
     method: TransactionMethods;

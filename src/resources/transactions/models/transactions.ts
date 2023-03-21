@@ -8,7 +8,6 @@ import {
     TransactionEdge,
     PageInfo,
     TransactionsGetInput,
-    TransactionMethods,
     TransactionItem,
 } from '../../../gql-types';
 import { INewTransaction } from '../dto/transaction';
