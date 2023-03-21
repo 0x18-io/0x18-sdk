@@ -7,6 +7,11 @@ import {
 export interface INewTransaction extends TransactionCreateItemGql {}
 
 class Transaction implements INewTransaction {
+    public static readonly METHODS = {
+        MINT: TransactionMethods.Mint,
+        BURN: TransactionMethods.Burn,
+    };
+
     amount: string;
     idempotencyKey?: InputMaybe<string> | undefined;
     ledgerId: string;
