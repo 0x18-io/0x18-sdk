@@ -132,9 +132,7 @@ class Ledgers {
                 );
             },
             pageInfo: data.ledgers.pageInfo,
-            results: Api.getEdges('ledgers', data).map((le: LedgerEdge) =>
-                Ledger.initFromSource(le.node!)
-            ),
+            results: Api.getEdges('ledgers', data).map((le: LedgerEdge) => Ledger.build(le.node!)),
         };
     }
 }

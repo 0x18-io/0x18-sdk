@@ -73,7 +73,7 @@ class Ledger implements ILedger {
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
 
-    static initFromSource(ledger: LedgerGql): Ledger {
+    static build(ledger: LedgerGql): Ledger {
         // this.#cursor = `${ledger.edge.cursor}`;
         const instance = new Ledger(ledger as INewLedger);
 
@@ -103,7 +103,7 @@ class Ledger implements ILedger {
             },
         });
 
-        return Ledger.initFromSource(data.ledgers.edges[0]);
+        return Ledger.build(data.ledgers.edges[0]);
     }
 
     async archive() {
