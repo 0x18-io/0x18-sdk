@@ -2,7 +2,7 @@ import { inRange } from 'lodash';
 import IConfiguration from './configuration/IConfiguration';
 import Wallets from './resources/wallets';
 import graphqlClient from './api';
-import Ledgers from './resources/ledgers';
+import Ledgers from './resources/ledgers/models/ledgers';
 import Transactions from './resources/transactions';
 
 class Client {

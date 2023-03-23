@@ -19,6 +19,7 @@ const ox = new Client({
 
     const singleNode = results[0];
     const { id, description } = singleNode;
+    console.log(singleNode);
 
     console.log(singleNode.id);
     console.log(singleNode.description);

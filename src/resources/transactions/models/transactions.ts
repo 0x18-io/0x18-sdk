@@ -8,6 +8,7 @@ import {
     TransactionEdge,
     PageInfo,
     TransactionsGetInput,
+    TransactionItem,
 } from '../../../gql-types';
 import { INewTransaction } from '../dto/transaction';
 import TransactionModel, { ITransaction } from './transaction-model';
@@ -25,11 +26,67 @@ interface ITransactionQueryOptions {
     attributes?: Array<keyof TransactionAttributes>;
 }
 
+interface ITransactionCreateOptions {
+    atomic: boolean;
+}
+
 class Transactions {
     public config: IConfiguration;
 
     constructor(config: IConfiguration = {}) {
         this.config = config;
+    }
+
+    async bulkCreate(
+        transactions: INewTransaction[],
+        options: ITransactionCreateOptions = { atomic: false }
+    ) {
+        let result: Mutation;
+
+        const transactionFields: Array<keyof TransactionItem> = [
+            'amount',
+            'balance',
+            'createdAt',
+            'createdAt',
+            'errors',
+            'id',
+            'idempotencyKey',
+            'metadata',
+            'method',
+            'status',
+            'tags',
+        ];
+
+        const { query, variables } = gqlBuilder.mutation(
+            {
+                operation: 'transactionCreate',
+                fields: [{ transactions: transactionFields }],
+                variables: {
+                    input: {
+                        value: {
+                            ...options,
+                            transactions,
+                        },
+                        type: 'TransactionCreateInput',
+                        required: true,
+                    },
+                },
+            },
+            undefined,
+            {
+                operationName: 'TransactionCreate',
+            }
+        );
+
+        try {
+            result = await Api.getInstance().request(query, variables);
+        } catch (error: any) {
+            throw new Error(error.response.errors[0].message);
+        }
+
+        return result.transactionCreate.transactions.map(
+            (t) => new TransactionModel({ edge: t, originalQuery: '', originalQueryVariables: '' })
+        );
     }
 
     async create(transaction: INewTransaction) {
@@ -142,7 +199,7 @@ class Transactions {
             results: Api.getEdges('transactions', data).map(
                 (edge: TransactionEdge) =>
                     new TransactionModel({
-                        edge,
+                        edge: edge.node!,
                         originalQuery: query,
                         originalQueryVariables: variables,
                     })
