@@ -8,8 +8,7 @@ import {
     LedgerEdge,
     PageInfo,
 } from '../../../gql-types';
-import { INewLedger } from '../dto/ledger';
-import LedgerModel, { ILedger } from './ledger-model';
+import Ledger, { ILedger, INewLedger } from './ledger';
 import { PageInfoFields } from '../../constants';
 
 type LedgersResponse = {
@@ -133,13 +132,8 @@ class Ledgers {
                 );
             },
             pageInfo: data.ledgers.pageInfo,
-            results: Api.getEdges('ledgers', data).map(
-                (edge: LedgerEdge) =>
-                    new LedgerModel({
-                        edge,
-                        originalQuery: query,
-                        originalQueryVariables: variables,
-                    })
+            results: Api.getEdges('ledgers', data).map((le: LedgerEdge) =>
+                Ledger.initFromSource(le.node!)
             ),
         };
     }

@@ -1,3 +1,3 @@
-import Ledgers from './models/ledgers';
+import Ledger from './models/ledger';
 
-export default Ledgers;
+export default Ledger;
