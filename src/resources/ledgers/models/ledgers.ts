@@ -4,16 +4,17 @@ import Api from '../../../api';
 import {
     Mutation,
     Ledger as LedgerGql,
+    LedgerCreateInput,
     LedgersInput,
     LedgerEdge,
     PageInfo,
 } from '../../../gql-types';
-import Ledger, { ILedger, INewLedger } from './ledger';
+import Ledger from './ledger';
 import { PageInfoFields } from '../../constants';
 
 type LedgersResponse = {
     pageInfo: PageInfo;
-    results: ILedger[];
+    results: Ledger[];
     fetchMore: any;
 };
 
@@ -30,7 +31,7 @@ class Ledgers {
         this.config = config;
     }
 
-    async create(ledger: INewLedger) {
+    async create(ledger: LedgerCreateInput) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(

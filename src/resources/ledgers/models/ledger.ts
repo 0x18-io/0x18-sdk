@@ -1,11 +1,10 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { Ledger as LedgerGql, LedgerCreateInput as LedgerCreateInputGql } from '../../../gql-types';
+import { Mutation } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-
-export interface INewLedger extends LedgerCreateInputGql {}
+import IModel from '../../model';
 
 const ledgerSchema = object({
     id: string().notRequired(),
@@ -21,13 +20,9 @@ const ledgerSchema = object({
     createdAt: date().notRequired(),
 });
 
-export interface ILedger extends InferType<typeof ledgerSchema> {
-    refetch: () => Promise<any>;
-    save: () => Promise<any>;
-    archive: () => Promise<any>;
-}
+export interface ILedger extends InferType<typeof ledgerSchema> {}
 
-class Ledger implements ILedger {
+class Ledger implements IModel<ILedger> {
     #dataValues: any;
     #previousDataValues: any;
     #cursor: any;
@@ -50,7 +45,7 @@ class Ledger implements ILedger {
     updatedAt?: Date;
     createdAt?: Date;
 
-    constructor(ledger: INewLedger) {
+    private constructor(ledger: any) {
         this.description = ledger.description!;
         this.displayName = ledger.displayName!;
         this.precision = ledger.precision;
@@ -73,9 +68,26 @@ class Ledger implements ILedger {
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
 
-    static build(ledger: LedgerGql): Ledger {
+    private init(ledger: any) {
+        this.description = ledger.description!;
+        this.displayName = ledger.displayName!;
+        this.precision = ledger.precision;
+        this.prefix = ledger.prefix!;
+        this.suffix = ledger.suffix;
+        this.reference = ledger.reference!;
+        this.id = ledger.id!;
+        this.transactionsCount = ledger.transactionsCount!;
+        this.walletsCount = ledger.walletsCount!;
+        this.updatedAt = ledger.updatedAt!;
+        this.createdAt = ledger.createdAt!;
+
+        this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
+    }
+
+    // TODO: hacky any because of mismatch between
+    static build(ledger: any): Ledger {
         // this.#cursor = `${ledger.edge.cursor}`;
-        const instance = new Ledger(ledger as INewLedger);
+        const instance = new Ledger(ledger);
 
         instance.id = ledger.id!;
         instance.transactionsCount = ledger.transactionsCount!;
@@ -83,10 +95,16 @@ class Ledger implements ILedger {
         instance.updatedAt = ledger.updatedAt!;
         instance.createdAt = ledger.createdAt!;
 
-        instance.#isNew = false;
         instance.#previousDataValues = ledgerSchema.cast(_.cloneDeep(ledger));
         instance.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
 
+        return instance;
+    }
+
+    static async create(ledger: any): Promise<Ledger> {
+        // this.#cursor = `${ledger.edge.cursor}`;
+        const instance = this.build(ledger);
+        await instance.save();
         return instance;
     }
 
@@ -103,13 +121,17 @@ class Ledger implements ILedger {
             },
         });
 
-        return Ledger.build(data.ledgers.edges[0]);
+        const ledger = Ledger.build(data.ledgers.edges[0]);
+
+        ledger.#isNew = false;
+
+        return ledger;
     }
 
     async archive() {
         const { query, variables } = gqlBuilder.mutation(
             {
-                operation: 'Archive',
+                operation: 'ledgerArchive',
                 fields: ['message'],
                 variables: {
                     input: {
@@ -137,9 +159,51 @@ class Ledger implements ILedger {
         const inputValue: { [key: string]: any } = {};
 
         if (this.#isNew) {
-            // TODO: call create method
-            console.log('Should be creating new ledger');
+            let result: Mutation;
+
+            const { query, variables } = gqlBuilder.mutation(
+                {
+                    operation: 'ledgerCreate',
+                    fields: [
+                        'avatarUrl',
+                        'createdAt',
+                        'description',
+                        'displayName',
+                        'id',
+                        'precision',
+                        'prefix',
+                        'reference',
+                        'suffix',
+                        'transactionsCount',
+                        'updatedAt',
+                        'walletsCount',
+                    ],
+                    variables: {
+                        input: {
+                            value: this,
+                            type: 'LedgerCreateInput',
+                            required: true,
+                        },
+                    },
+                },
+                undefined,
+                {
+                    operationName: 'LedgerCreate',
+                }
+            );
+
+            try {
+                result = await Api.getInstance().request(query, variables);
+            } catch (error: any) {
+                throw new Error(error.response.errors[0].message);
+            }
+
+            console.log(result.ledgerCreate);
+
+            this.init(result.ledgerCreate);
             this.#isNew = false;
+
+            return true;
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
