@@ -37,7 +37,20 @@ class Ledgers {
         const { query, variables } = gqlBuilder.mutation(
             {
                 operation: 'ledgerCreate',
-                fields: ['id'],
+                fields: [
+                    'avatarUrl',
+                    'createdAt',
+                    'description',
+                    'displayName',
+                    'id',
+                    'precision',
+                    'prefix',
+                    'reference',
+                    'suffix',
+                    'transactionsCount',
+                    'updatedAt',
+                    'walletsCount',
+                ],
                 variables: {
                     input: {
                         value: ledger,
@@ -59,7 +72,7 @@ class Ledgers {
         }
 
         // TODO: refetching is not cool but for now doing to honor NewLedger type
-        return this.findOne({ id: result.ledgerCreate.id });
+        return Ledger.build(result.ledgerCreate);
     }
 
     async findOne(input: LedgersInput, options: ILedgerQueryOptions = {}) {

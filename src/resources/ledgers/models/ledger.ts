@@ -25,9 +25,6 @@ export interface ILedger extends InferType<typeof ledgerSchema> {}
 class Ledger implements IModel<ILedger> {
     #dataValues: any;
     #previousDataValues: any;
-    #cursor: any;
-    #ledgersQuery: any;
-    #ledgersQueryVariables: any;
     #updatableAttributes: string[];
     #updatingSemaphore: Semaphore;
     #isNew: boolean;
@@ -84,9 +81,7 @@ class Ledger implements IModel<ILedger> {
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
 
-    // TODO: hacky any because of mismatch between
     static build(ledger: any): Ledger {
-        // this.#cursor = `${ledger.edge.cursor}`;
         const instance = new Ledger(ledger);
 
         instance.id = ledger.id!;
@@ -106,26 +101,6 @@ class Ledger implements IModel<ILedger> {
         const instance = this.build(ledger);
         await instance.save();
         return instance;
-    }
-
-    getCursor() {
-        return this.#cursor;
-    }
-
-    // TODO: just refetch full ledger from api
-    async refetch() {
-        const data = await Api.getInstance().request(this.#ledgersQuery, {
-            input: {
-                first: 1,
-                id: this.#dataValues.id,
-            },
-        });
-
-        const ledger = Ledger.build(data.ledgers.edges[0]);
-
-        ledger.#isNew = false;
-
-        return ledger;
     }
 
     async archive() {
@@ -149,16 +124,17 @@ class Ledger implements IModel<ILedger> {
 
         try {
             await Api.getInstance().request(query, variables);
-            return true;
         } catch (error: any) {
             throw new Error(error.response.errors[0].message);
         }
+
+        return true;
     }
 
     async #saveHttp() {
         const inputValue: { [key: string]: any } = {};
 
-        if (this.#isNew) {
+        if (this.#isNew && !this.id) {
             let result: Mutation;
 
             const { query, variables } = gqlBuilder.mutation(
@@ -198,12 +174,8 @@ class Ledger implements IModel<ILedger> {
                 throw new Error(error.response.errors[0].message);
             }
 
-            console.log(result.ledgerCreate);
-
             this.init(result.ledgerCreate);
             this.#isNew = false;
-
-            return true;
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
@@ -249,6 +221,7 @@ class Ledger implements IModel<ILedger> {
     async save() {
         // If operation is already running we do nothing
         const didAcquireLock = await this.#updatingSemaphore.waitFor(0);
+
         if (!didAcquireLock) {
             return false;
         }
