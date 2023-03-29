@@ -9,14 +9,14 @@ import {
     PageInfo,
     TransactionsGetInput,
     TransactionItem,
+    TransactionCreateItem,
 } from '../../../gql-types';
-import { INewTransaction } from '../dto/transaction';
-import TransactionModel, { ITransaction } from './transaction-model';
+import Transaction from './transaction';
 import { PageInfoFields } from '../../constants';
 
 type TransactionsResponse = {
     pageInfo: PageInfo;
-    results: ITransaction[];
+    results: Transaction[];
     fetchMore: any;
 };
 
@@ -38,7 +38,7 @@ class Transactions {
     }
 
     async bulkCreate(
-        transactions: INewTransaction[],
+        transactions: TransactionCreateItem[],
         options: ITransactionCreateOptions = { atomic: false }
     ) {
         let result: Mutation;
@@ -84,18 +84,32 @@ class Transactions {
             throw new Error(error.response.errors[0].message);
         }
 
-        return result.transactionCreate.transactions.map(
-            (t) => new TransactionModel({ edge: t, originalQuery: '', originalQueryVariables: '' })
-        );
+        return result.transactionCreate.transactions.map((t) => Transaction.build(t));
     }
 
-    async create(transaction: INewTransaction) {
+    async create(transaction: TransactionCreateItem) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(
             {
                 operation: 'transactionCreate',
-                fields: [{ transactions: ['id'] }],
+                fields: [
+                    {
+                        transactions: [
+                            'amount',
+                            'balance',
+                            'createdAt',
+                            'createdAt',
+                            'errors',
+                            'id',
+                            'idempotencyKey',
+                            'metadata',
+                            'method',
+                            'status',
+                            'tags',
+                        ],
+                    },
+                ],
                 variables: {
                     input: {
                         value: {
@@ -119,7 +133,7 @@ class Transactions {
             throw new Error(error.response.errors[0].message);
         }
 
-        return this.findOne({ id: result.transactionCreate.transactions[0].id });
+        return Transaction.build(result.transactionCreate.transactions[0]);
     }
 
     async findOne(input: TransactionsGetInput, options: ITransactionQueryOptions = {}) {
@@ -196,13 +210,8 @@ class Transactions {
                 );
             },
             pageInfo: data.transactions.pageInfo,
-            results: Api.getEdges('transactions', data).map(
-                (edge: TransactionEdge) =>
-                    new TransactionModel({
-                        edge: edge.node!,
-                        originalQuery: query,
-                        originalQueryVariables: variables,
-                    })
+            results: Api.getEdges('transactions', data).map((edge: TransactionEdge) =>
+                Transaction.build(edge.node)
             ),
         };
     }

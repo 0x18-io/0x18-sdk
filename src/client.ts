@@ -3,7 +3,7 @@ import IConfiguration from './configuration/IConfiguration';
 import Wallets from './resources/wallets';
 import graphqlClient from './api';
 import Ledgers from './resources/ledgers/models/ledgers';
-import Transactions from './resources/transactions';
+import Transactions from './resources/transactions/models/transactions';
 
 class Client {
     public config: IConfiguration;

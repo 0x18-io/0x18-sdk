@@ -27,7 +27,6 @@ class Ledger implements IModel<ILedger> {
     #previousDataValues: any;
     #updatableAttributes: string[];
     #updatingSemaphore: Semaphore;
-    #isNew: boolean;
 
     description?: string;
     displayName?: string;
@@ -60,7 +59,6 @@ class Ledger implements IModel<ILedger> {
         ];
 
         this.#updatingSemaphore = new Semaphore(1);
-        this.#isNew = true;
         this.#previousDataValues = ledgerSchema.cast(_.cloneDeep(ledger));
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
@@ -133,7 +131,7 @@ class Ledger implements IModel<ILedger> {
     async #saveHttp() {
         const inputValue: { [key: string]: any } = {};
 
-        if (this.#isNew && !this.id) {
+        if (!this.id) {
             let result: Mutation;
 
             const { query, variables } = gqlBuilder.mutation(
@@ -174,7 +172,6 @@ class Ledger implements IModel<ILedger> {
             }
 
             this.init(result.ledgerCreate);
-            this.#isNew = false;
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
