@@ -5,7 +5,7 @@ import { LedgerUpdateInput, LedgerCreateInput } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import IModel from '../../model';
-import { ledgerCreate } from '../graphql';
+import { ledgerArchive, ledgerCreate } from '../graphql';
 
 const ledgerSchema = object({
     id: string().notRequired(),
@@ -83,30 +83,7 @@ class Ledger implements IModel<ILedger> {
     }
 
     async archive() {
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'ledgerArchive',
-                fields: ['message'],
-                variables: {
-                    input: {
-                        value: { id: this.#dataValues.id },
-                        type: 'LedgerArchiveInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'LedgerArchive',
-            }
-        );
-
-        try {
-            await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
+        await ledgerArchive({ id: this.#dataValues.id });
         return true;
     }
 

@@ -6,7 +6,7 @@ import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import WalletLedger from '../dto/wallet-ledger';
 import IModel from '../../model';
-import { walletCreate } from '../graphql';
+import { walletArchive, walletCreate } from '../graphql';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -75,30 +75,7 @@ class Wallet implements IModel<IWallet> {
     }
 
     async archive() {
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'walletArchive',
-                fields: ['message'],
-                variables: {
-                    input: {
-                        value: { id: this.#dataValues.id },
-                        type: 'WalletArchiveInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'WalletArchive',
-            }
-        );
-
-        try {
-            await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
+        await walletArchive({ id: this.#dataValues.id });
         return true;
     }
 
