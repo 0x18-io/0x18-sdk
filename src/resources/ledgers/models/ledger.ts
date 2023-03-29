@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { Mutation } from '../../../gql-types';
+import { Mutation, Ledger as LedgerGql, LedgerUpdateInput } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import IModel from '../../model';
@@ -25,29 +25,23 @@ export interface ILedger extends InferType<typeof ledgerSchema> {}
 class Ledger implements IModel<ILedger> {
     #dataValues: any;
     #previousDataValues: any;
-    #updatableAttributes: string[];
+    #updatableAttributes: Omit<Array<keyof LedgerUpdateInput>, 'id'>;
     #updatingSemaphore: Semaphore;
-
-    description?: string;
-    displayName?: string;
-    precision: number;
-    prefix?: string;
-    suffix: string;
-    reference?: string;
 
     id?: string;
     transactionsCount?: number;
     walletsCount?: number;
     updatedAt?: Date;
     createdAt?: Date;
+    description?: string;
+    displayName?: string;
+    precision?: number;
+    prefix?: string;
+    suffix?: string;
+    reference?: string;
 
     private constructor(ledger: any) {
-        this.description = ledger.description!;
-        this.displayName = ledger.displayName!;
-        this.precision = ledger.precision;
-        this.prefix = ledger.prefix!;
-        this.suffix = ledger.suffix;
-        this.reference = ledger.reference!;
+        Object.assign(this, ledger);
 
         this.#updatableAttributes = [
             'description',
@@ -64,17 +58,7 @@ class Ledger implements IModel<ILedger> {
     }
 
     private init(ledger: any) {
-        this.description = ledger.description!;
-        this.displayName = ledger.displayName!;
-        this.precision = ledger.precision;
-        this.prefix = ledger.prefix!;
-        this.suffix = ledger.suffix;
-        this.reference = ledger.reference!;
-        this.id = ledger.id!;
-        this.transactionsCount = ledger.transactionsCount!;
-        this.walletsCount = ledger.walletsCount!;
-        this.updatedAt = ledger.updatedAt!;
-        this.createdAt = ledger.createdAt!;
+        Object.assign(this, ledger);
 
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
@@ -82,11 +66,7 @@ class Ledger implements IModel<ILedger> {
     static build(ledger: any): Ledger {
         const instance = new Ledger(ledger);
 
-        instance.id = ledger.id!;
-        instance.transactionsCount = ledger.transactionsCount!;
-        instance.walletsCount = ledger.walletsCount!;
-        instance.updatedAt = ledger.updatedAt!;
-        instance.createdAt = ledger.createdAt!;
+        Object.assign(instance, ledger);
 
         instance.#previousDataValues = ledgerSchema.cast(_.cloneDeep(ledger));
         instance.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
@@ -133,24 +113,25 @@ class Ledger implements IModel<ILedger> {
 
         if (!this.id) {
             let result: Mutation;
+            const fields: Array<keyof LedgerGql> = [
+                'avatarUrl',
+                'createdAt',
+                'description',
+                'displayName',
+                'id',
+                'precision',
+                'prefix',
+                'reference',
+                'suffix',
+                'transactionsCount',
+                'updatedAt',
+                'walletsCount',
+            ];
 
             const { query, variables } = gqlBuilder.mutation(
                 {
                     operation: 'ledgerCreate',
-                    fields: [
-                        'avatarUrl',
-                        'createdAt',
-                        'description',
-                        'displayName',
-                        'id',
-                        'precision',
-                        'prefix',
-                        'reference',
-                        'suffix',
-                        'transactionsCount',
-                        'updatedAt',
-                        'walletsCount',
-                    ],
+                    fields,
                     variables: {
                         input: {
                             value: this,

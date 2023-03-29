@@ -1,9 +1,14 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { Mutation, TransactionMethods } from '../../../gql-types';
+import {
+    Mutation,
+    TransactionItem,
+    TransactionMethods,
+    TransactionUpdateInput,
+} from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
-import { date, object, string, InferType, array, mixed, Maybe } from 'yup';
+import { date, object, string, InferType, array, mixed } from 'yup';
 import IModel from '../../model';
 
 const transactionSchema = object({
@@ -31,45 +36,29 @@ export interface ITransaction extends InferType<typeof transactionSchema> {}
 class Transaction implements IModel<ITransaction> {
     #dataValues: any;
     #previousDataValues: any;
-    #updatableAttributes: string[];
+    #updatableAttributes: Array<keyof Omit<TransactionUpdateInput, 'id'>>;
     #updatingSemaphore: Semaphore;
 
-    hash?: Maybe<string | undefined>;
-    updatedAt?: Maybe<Date | undefined>;
-    description?: Maybe<string | undefined>;
-    errors?: Maybe<(string | undefined)[] | undefined>;
-    identity?: Maybe<string | undefined>;
-    reference?: Maybe<string | undefined>;
-    tags?: Maybe<(string | undefined)[] | undefined>;
-    id: string;
-    createdAt: Date;
-    amount: string;
-    balance: string;
-    metadata: {} | null;
-    method: NonNullable<TransactionMethods | undefined>;
-    status: string;
-    ledgerId: string;
-    walletId: string;
-    idempotencyKey: string;
+    id?: string;
+    hash?: string;
+    updatedAt?: Date;
+    description?: string;
+    errors?: Array<string | undefined> | undefined;
+    identity?: string;
+    reference?: string;
+    tags?: Array<string>;
+    createdAt?: Date;
+    amount?: string;
+    balance?: string;
+    metadata: Record<string, string | string[]> = {};
+    method?: NonNullable<TransactionMethods | undefined>;
+    status?: string;
+    ledgerId?: string;
+    walletId?: string;
+    idempotencyKey?: string;
 
-    private constructor(transaction: any) {
-        this.id = transaction.id;
-        this.reference = transaction.reference;
-        this.description = transaction.description;
-        this.updatedAt = transaction.updatedAt;
-        this.createdAt = transaction.createdAt;
-        this.amount = transaction.amount;
-        this.balance = transaction.balance;
-        this.metadata = transaction.metadata;
-        this.method = transaction.method;
-        this.status = transaction.status;
-        this.hash = transaction.hash;
-        this.tags = transaction.tags;
-        this.identity = transaction.identity;
-        this.errors = transaction.errors;
-        this.ledgerId = transaction.ledgerId;
-        this.walletId = transaction.walletId;
-        this.idempotencyKey = transaction.idempotencyKey;
+    private constructor(transaction: Partial<InferType<typeof transactionSchema>>) {
+        Object.assign(this, transaction);
 
         this.#updatableAttributes = ['description', 'reference'];
 
@@ -78,21 +67,8 @@ class Transaction implements IModel<ITransaction> {
         this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
     }
 
-    private init(transaction: any) {
-        this.id = transaction.id;
-        this.reference = transaction.reference;
-        this.description = transaction.description;
-        this.updatedAt = transaction.updatedAt;
-        this.createdAt = transaction.createdAt;
-        this.amount = transaction.amount;
-        this.balance = transaction.balance;
-        this.metadata = transaction.metadata;
-        this.method = transaction.method;
-        this.status = transaction.status;
-        this.hash = transaction.hash;
-        this.tags = transaction.tags;
-        this.identity = transaction.identity;
-        this.errors = transaction.errors;
+    private init(transaction: TransactionItem) {
+        Object.assign(this, transaction);
 
         this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
     }
@@ -105,11 +81,7 @@ class Transaction implements IModel<ITransaction> {
     static build(transaction: any): Transaction {
         const instance = new Transaction(transaction);
 
-        instance.id = transaction.id!;
-        instance.balance = transaction.balance!;
-        instance.tags = transaction.tags!;
-        instance.updatedAt = transaction.updatedAt!;
-        instance.createdAt = transaction.createdAt!;
+        Object.assign(instance, transaction);
 
         instance.#previousDataValues = transactionSchema.cast(_.cloneDeep(transaction));
         instance.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
@@ -129,24 +101,26 @@ class Transaction implements IModel<ITransaction> {
         if (!this.id) {
             let result: Mutation;
 
+            const transactionFields: Array<keyof TransactionItem> = [
+                'amount',
+                'balance',
+                'createdAt',
+                'createdAt',
+                'errors',
+                'id',
+                'idempotencyKey',
+                'metadata',
+                'method',
+                'status',
+                'tags',
+            ];
+
             const { query, variables } = gqlBuilder.mutation(
                 {
                     operation: 'transactionCreate',
                     fields: [
                         {
-                            transactions: [
-                                'amount',
-                                'balance',
-                                'createdAt',
-                                'createdAt',
-                                'errors',
-                                'id',
-                                'idempotencyKey',
-                                'metadata',
-                                'method',
-                                'status',
-                                'tags',
-                            ],
+                            transactions: transactionFields,
                         },
                     ],
                     variables: {
@@ -232,7 +206,7 @@ class Transaction implements IModel<ITransaction> {
     }
 
     async archive() {
-        throw new Error('Archive on transaction is not available');
+        throw new Error('Transaction archive is not available');
     }
 }
 

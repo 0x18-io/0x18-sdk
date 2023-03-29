@@ -29,7 +29,7 @@ class Wallet implements IModel<IWallet> {
     #updatableAttributes: string[];
     #updatingSemaphore: Semaphore;
 
-    id: string;
+    id?: string;
     reference?: string;
     metadata: Record<string, string | string[]> = {};
     description?: string;
@@ -37,19 +37,11 @@ class Wallet implements IModel<IWallet> {
     transactionsCount?: number;
     ledgersCount?: number;
     updatedAt?: Date;
-    createdAt: Date;
+    createdAt?: Date;
     ledgers?: WalletLedger[];
 
     private constructor(wallet: any) {
-        this.id = wallet.id;
-        this.reference = wallet.reference;
-        this.metadata = wallet.metadata || {};
-        this.description = wallet.description;
-        this.displayName = wallet.displayName;
-        this.transactionsCount = wallet.transactionsCount;
-        this.ledgersCount = wallet.ledgersCount;
-        this.updatedAt = wallet.updatedAt;
-        this.createdAt = wallet.createdAt;
+        Object.assign(this, wallet);
 
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
@@ -59,15 +51,7 @@ class Wallet implements IModel<IWallet> {
     }
 
     private init(wallet: any) {
-        this.id = wallet.id;
-        this.reference = wallet.reference;
-        this.metadata = wallet.metadata || {};
-        this.description = wallet.description;
-        this.displayName = wallet.displayName;
-        this.transactionsCount = wallet.transactionsCount;
-        this.ledgersCount = wallet.ledgersCount;
-        this.updatedAt = wallet.updatedAt;
-        this.createdAt = wallet.createdAt;
+        Object.assign(this, wallet);
 
         this.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
     }
@@ -75,11 +59,7 @@ class Wallet implements IModel<IWallet> {
     static build(wallet: any): Wallet {
         const instance = new Wallet(wallet);
 
-        instance.id = wallet.id!;
-        instance.transactionsCount = wallet.transactionsCount!;
-        instance.ledgersCount = wallet.ledgersCount!;
-        instance.updatedAt = wallet.updatedAt!;
-        instance.createdAt = wallet.createdAt!;
+        Object.assign(instance, wallet);
 
         instance.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet));
         instance.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
