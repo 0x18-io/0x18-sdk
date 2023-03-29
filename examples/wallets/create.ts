@@ -1,7 +1,7 @@
 import Client from '../..';
 // @ts-ignore
 import process from 'node:process';
-import Wallet from '../../src/resources/wallets/dto/wallet';
+import Wallet from '../../src/resources/wallets';
 
 const ox = new Client({
     host: 'https://qa--official0x18.apollographos.net',
@@ -9,9 +9,16 @@ const ox = new Client({
 });
 
 (async () => {
-    const wallet = await ox.wallets.create(new Wallet({}));
-    const wallet2 = await ox.wallets.create({ displayName: 'Hello_from_sdk' });
-
+    const wallet = await ox.wallets.create({ displayName: 'Hello_from_sdk' });
     console.log(wallet);
+    await wallet.archive();
+
+    const wallet2 = await Wallet.create({ displayName: 'Hello_from_sdk ' });
     console.log(wallet2);
+    await wallet2.archive();
+
+    const wallet3 = Wallet.build({ displayName: 'Hello_from_sdk_build' });
+    await wallet3.save();
+    console.log(wallet3);
+    await wallet3.archive();
 })();

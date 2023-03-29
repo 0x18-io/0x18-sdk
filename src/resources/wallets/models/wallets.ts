@@ -1,19 +1,19 @@
 import IConfiguration from '../../../configuration/IConfiguration';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
-import WalletModel from './wallet-model';
+import Wallet from './wallet';
 import {
     Mutation,
     WalletEdge,
     WalletsInput,
     Wallet as WalletGql,
     PageInfo,
+    WalletCreateInput,
 } from '../../../gql-types';
-import { INewWallet } from '../dto/wallet';
 
 type WalletsResponse = {
     pageInfo: PageInfo;
-    results: WalletModel[];
+    results: Wallet[];
     fetchMore: any;
 };
 
@@ -30,13 +30,23 @@ class Wallets {
         this.config = config;
     }
 
-    async create(wallet: INewWallet) {
+    async create(wallet: WalletCreateInput) {
         let result: Mutation;
 
         const { query, variables } = gqlBuilder.mutation(
             {
                 operation: 'walletCreate',
-                fields: ['id'],
+                fields: [
+                    'id',
+                    'reference',
+                    'description',
+                    'displayName',
+                    'metadata',
+                    'transactionsCount',
+                    'ledgersCount',
+                    'createdAt',
+                    'updatedAt',
+                ],
                 variables: {
                     input: {
                         value: wallet,
@@ -57,8 +67,7 @@ class Wallets {
             throw new Error(error.response.errors[0].message);
         }
 
-        // TODO: refetching is not cool but for now doing to honor NewWallet type
-        return this.findOne({ id: result.walletCreate.id });
+        return Wallet.build(result.walletCreate);
     }
 
     async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
@@ -138,13 +147,8 @@ class Wallets {
                 );
             },
             pageInfo: data.wallets.pageInfo,
-            results: Api.getEdges('wallets', data).map(
-                (edge: WalletEdge) =>
-                    new WalletModel({
-                        edge,
-                        originalQuery: query,
-                        originalQueryVariables: variables,
-                    })
+            results: Api.getEdges('wallets', data).map((edge: WalletEdge) =>
+                Wallet.build(edge.node)
             ),
         };
     }
