@@ -66,6 +66,7 @@ export enum IdentityRole {
 export type Ledger = {
     auditTrail?: Maybe<AuditTrailConnection>;
     avatarUrl?: Maybe<Scalars['String']>;
+    balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     description?: Maybe<Scalars['String']>;
     displayName?: Maybe<Scalars['String']>;
@@ -138,6 +139,7 @@ export type Mutation = {
     ledgerCreate: Ledger;
     ledgerUpdate: Ledger;
     metadataValidate: MessageOnly;
+    ruleValidate: MessageOnly;
     transactionCreate: TransactionCreateResponse;
     transactionUpdate: Transaction;
     walletArchive: MessageOnly;
@@ -159,6 +161,10 @@ export type MutationLedgerUpdateArgs = {
 
 export type MutationMetadataValidateArgs = {
     metadata?: InputMaybe<Scalars['JSON']>;
+};
+
+export type MutationRuleValidateArgs = {
+    rule?: InputMaybe<Scalars['JSON']>;
 };
 
 export type MutationTransactionCreateArgs = {

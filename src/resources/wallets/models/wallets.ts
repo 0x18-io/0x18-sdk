@@ -3,13 +3,13 @@ import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import Wallet from './wallet';
 import {
-    Mutation,
     WalletEdge,
     WalletsInput,
     Wallet as WalletGql,
     PageInfo,
     WalletCreateInput,
 } from '../../../gql-types';
+import { walletCreate } from '../graphql';
 
 type WalletsResponse = {
     pageInfo: PageInfo;
@@ -31,43 +31,8 @@ class Wallets {
     }
 
     async create(wallet: WalletCreateInput) {
-        let result: Mutation;
-
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'walletCreate',
-                fields: [
-                    'id',
-                    'reference',
-                    'description',
-                    'displayName',
-                    'metadata',
-                    'transactionsCount',
-                    'ledgersCount',
-                    'createdAt',
-                    'updatedAt',
-                ],
-                variables: {
-                    input: {
-                        value: wallet,
-                        type: 'WalletCreateInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'WalletCreate',
-            }
-        );
-
-        try {
-            result = await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
-        return Wallet.build(result.walletCreate);
+        const walletGql = await walletCreate(wallet);
+        return Wallet.build(walletGql);
     }
 
     async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {

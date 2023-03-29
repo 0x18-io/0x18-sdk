@@ -6,6 +6,7 @@ import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import WalletLedger from '../dto/wallet-ledger';
 import IModel from '../../model';
+import { walletCreate } from '../graphql';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -105,43 +106,8 @@ class Wallet implements IModel<IWallet> {
         const inputValue: { [key: string]: any } = {};
 
         if (!this.id) {
-            let result: Mutation;
-
-            const { query, variables } = gqlBuilder.mutation(
-                {
-                    operation: 'walletCreate',
-                    fields: [
-                        'id',
-                        'reference',
-                        'description',
-                        'displayName',
-                        'metadata',
-                        'transactionsCount',
-                        'ledgersCount',
-                        'createdAt',
-                        'updatedAt',
-                    ],
-                    variables: {
-                        input: {
-                            value: this,
-                            type: 'WalletCreateInput',
-                            required: true,
-                        },
-                    },
-                },
-                undefined,
-                {
-                    operationName: 'WalletCreate',
-                }
-            );
-
-            try {
-                result = await Api.getInstance().request(query, variables);
-            } catch (error: any) {
-                throw new Error(error.response.errors[0].message);
-            }
-
-            this.init(result.walletCreate);
+            const walletGql = await walletCreate(this);
+            this.init(walletGql);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {

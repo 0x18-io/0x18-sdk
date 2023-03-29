@@ -2,17 +2,16 @@ import IConfiguration from '../../../configuration/IConfiguration';
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import {
-    Mutation,
     Transaction as TransactionGql,
     TransactionsInput,
     TransactionEdge,
     PageInfo,
     TransactionsGetInput,
-    TransactionItem,
     TransactionCreateItem,
 } from '../../../gql-types';
 import Transaction from './transaction';
 import { PageInfoFields } from '../../constants';
+import { ITransactionCreateOptions, transactionCreate } from '../graphql';
 
 type TransactionsResponse = {
     pageInfo: PageInfo;
@@ -26,10 +25,6 @@ interface ITransactionQueryOptions {
     attributes?: Array<keyof TransactionAttributes>;
 }
 
-interface ITransactionCreateOptions {
-    atomic: boolean;
-}
-
 class Transactions {
     public config: IConfiguration;
 
@@ -41,99 +36,16 @@ class Transactions {
         transactions: TransactionCreateItem[],
         options: ITransactionCreateOptions = { atomic: false }
     ) {
-        let result: Mutation;
-
-        const transactionFields: Array<keyof TransactionItem> = [
-            'amount',
-            'balance',
-            'createdAt',
-            'createdAt',
-            'errors',
-            'id',
-            'idempotencyKey',
-            'metadata',
-            'method',
-            'status',
-            'tags',
-        ];
-
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'transactionCreate',
-                fields: [{ transactions: transactionFields }],
-                variables: {
-                    input: {
-                        value: {
-                            ...options,
-                            transactions,
-                        },
-                        type: 'TransactionCreateInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'TransactionCreate',
-            }
-        );
-
-        try {
-            result = await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
-        return result.transactionCreate.transactions.map((t) => Transaction.build(t));
+        const transactionsGql = await transactionCreate(transactions, options);
+        return transactionsGql.transactions.map((t) => Transaction.build(t));
     }
 
-    async create(transaction: TransactionCreateItem) {
-        let result: Mutation;
-
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'transactionCreate',
-                fields: [
-                    {
-                        transactions: [
-                            'amount',
-                            'balance',
-                            'createdAt',
-                            'createdAt',
-                            'errors',
-                            'id',
-                            'idempotencyKey',
-                            'metadata',
-                            'method',
-                            'status',
-                            'tags',
-                        ],
-                    },
-                ],
-                variables: {
-                    input: {
-                        value: {
-                            atomic: false,
-                            transactions: [transaction],
-                        },
-                        type: 'TransactionCreateInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'TransactionCreate',
-            }
-        );
-
-        try {
-            result = await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
-        return Transaction.build(result.transactionCreate.transactions[0]);
+    async create(
+        transaction: TransactionCreateItem,
+        options: ITransactionCreateOptions = { atomic: false }
+    ) {
+        const transactionsGql = await transactionCreate([transaction], options);
+        return Transaction.build(transactionsGql.transactions[0]);
     }
 
     async findOne(input: TransactionsGetInput, options: ITransactionQueryOptions = {}) {

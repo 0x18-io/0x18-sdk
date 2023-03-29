@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
 import {
-    Mutation,
+    TransactionCreateItem,
     TransactionItem,
     TransactionMethods,
     TransactionUpdateInput,
@@ -10,6 +10,7 @@ import {
 import Semaphore from 'semaphore-async-await';
 import { date, object, string, InferType, array, mixed } from 'yup';
 import IModel from '../../model';
+import { transactionCreate } from '../graphql';
 
 const transactionSchema = object({
     id: string().notRequired(),
@@ -99,54 +100,8 @@ class Transaction implements IModel<ITransaction> {
         const inputValue: { [key: string]: any } = {};
 
         if (!this.id) {
-            let result: Mutation;
-
-            const transactionFields: Array<keyof TransactionItem> = [
-                'amount',
-                'balance',
-                'createdAt',
-                'createdAt',
-                'errors',
-                'id',
-                'idempotencyKey',
-                'metadata',
-                'method',
-                'status',
-                'tags',
-            ];
-
-            const { query, variables } = gqlBuilder.mutation(
-                {
-                    operation: 'transactionCreate',
-                    fields: [
-                        {
-                            transactions: transactionFields,
-                        },
-                    ],
-                    variables: {
-                        input: {
-                            value: {
-                                atomic: false,
-                                transactions: [this],
-                            },
-                            type: 'TransactionCreateInput',
-                            required: true,
-                        },
-                    },
-                },
-                undefined,
-                {
-                    operationName: 'TransactionCreate',
-                }
-            );
-
-            try {
-                result = await Api.getInstance().request(query, variables);
-            } catch (error: any) {
-                throw new Error(error.response.errors[0].message);
-            }
-
-            this.init(result.transactionCreate.transactions[0]);
+            const transactionGql = await transactionCreate([this as TransactionCreateItem]);
+            this.init(transactionGql.transactions[0]);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {

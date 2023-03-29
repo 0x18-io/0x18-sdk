@@ -11,6 +11,7 @@ import {
 } from '../../../gql-types';
 import Ledger from './ledger';
 import { PageInfoFields } from '../../constants';
+import { ledgerCreate } from '../graphql';
 
 type LedgersResponse = {
     pageInfo: PageInfo;
@@ -32,47 +33,8 @@ class Ledgers {
     }
 
     async create(ledger: LedgerCreateInput) {
-        let result: Mutation;
-
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'ledgerCreate',
-                fields: [
-                    'avatarUrl',
-                    'createdAt',
-                    'description',
-                    'displayName',
-                    'id',
-                    'precision',
-                    'prefix',
-                    'reference',
-                    'suffix',
-                    'transactionsCount',
-                    'updatedAt',
-                    'walletsCount',
-                ],
-                variables: {
-                    input: {
-                        value: ledger,
-                        type: 'LedgerCreateInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'LedgerCreate',
-            }
-        );
-
-        try {
-            result = await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
-        // TODO: refetching is not cool but for now doing to honor NewLedger type
-        return Ledger.build(result.ledgerCreate);
+        const ledgerGql = await ledgerCreate(ledger);
+        return Ledger.build(ledgerGql);
     }
 
     async findOne(input: LedgersInput, options: ILedgerQueryOptions = {}) {

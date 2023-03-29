@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import Api from '../../../api';
 import * as gqlBuilder from 'gql-query-builder';
-import { Mutation, Ledger as LedgerGql, LedgerUpdateInput } from '../../../gql-types';
+import { LedgerUpdateInput, LedgerCreateInput } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import IModel from '../../model';
+import { ledgerCreate } from '../graphql';
 
 const ledgerSchema = object({
     id: string().notRequired(),
@@ -18,6 +19,7 @@ const ledgerSchema = object({
     walletsCount: number().integer().notRequired(),
     updatedAt: date().notRequired(),
     createdAt: date().notRequired(),
+    balance: string().notRequired(),
 });
 
 export interface ILedger extends InferType<typeof ledgerSchema> {}
@@ -112,47 +114,9 @@ class Ledger implements IModel<ILedger> {
         const inputValue: { [key: string]: any } = {};
 
         if (!this.id) {
-            let result: Mutation;
-            const fields: Array<keyof LedgerGql> = [
-                'avatarUrl',
-                'createdAt',
-                'description',
-                'displayName',
-                'id',
-                'precision',
-                'prefix',
-                'reference',
-                'suffix',
-                'transactionsCount',
-                'updatedAt',
-                'walletsCount',
-            ];
+            const ledgerGql = await ledgerCreate(this as LedgerCreateInput);
 
-            const { query, variables } = gqlBuilder.mutation(
-                {
-                    operation: 'ledgerCreate',
-                    fields,
-                    variables: {
-                        input: {
-                            value: this,
-                            type: 'LedgerCreateInput',
-                            required: true,
-                        },
-                    },
-                },
-                undefined,
-                {
-                    operationName: 'LedgerCreate',
-                }
-            );
-
-            try {
-                result = await Api.getInstance().request(query, variables);
-            } catch (error: any) {
-                throw new Error(error.response.errors[0].message);
-            }
-
-            this.init(result.ledgerCreate);
+            this.init(ledgerGql);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
