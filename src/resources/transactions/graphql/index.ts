@@ -1,10 +1,12 @@
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import {
+    Ledger,
     Mutation,
     TransactionCreateItem,
     TransactionCreateResponse,
     TransactionItem,
+    TransactionUpdateInput,
 } from '../../../gql-types';
 
 export interface ITransactionCreateOptions {
@@ -59,4 +61,36 @@ export const transactionCreate = async (
     }
 
     return result.transactionCreate;
+};
+
+export const transactionUpdate = async (input: TransactionUpdateInput): Promise<Ledger> => {
+    let result: Mutation;
+
+    const fields: Array<keyof Ledger> = ['id'];
+
+    const { query, variables } = gqlBuilder.mutation(
+        {
+            operation: 'transactionUpdate',
+            fields,
+            variables: {
+                input: {
+                    value: input,
+                    type: 'TransactionUpdateInput',
+                    required: true,
+                },
+            },
+        },
+        undefined,
+        {
+            operationName: 'TransactionUpdate',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result.ledgerUpdate;
 };

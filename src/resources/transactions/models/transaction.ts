@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import Api from '../../../api';
-import * as gqlBuilder from 'gql-query-builder';
 import {
     TransactionCreateItem,
     TransactionItem,
@@ -10,7 +8,7 @@ import {
 import Semaphore from 'semaphore-async-await';
 import { date, object, string, InferType, array, mixed } from 'yup';
 import IModel from '../../model';
-import { transactionCreate } from '../graphql';
+import { transactionCreate, transactionUpdate } from '../graphql';
 
 const transactionSchema = object({
     id: string().notRequired(),
@@ -116,29 +114,7 @@ class Transaction implements IModel<ITransaction> {
             // We do not update if nothing has changed
             if (_.isEmpty(inputValue)) return false;
 
-            const { query, variables } = gqlBuilder.mutation(
-                {
-                    operation: 'transactionUpdate',
-                    fields: ['id'],
-                    variables: {
-                        input: {
-                            value: { id: this.#dataValues.id, ...inputValue },
-                            type: 'TransactionUpdateInput',
-                            required: true,
-                        },
-                    },
-                },
-                undefined,
-                {
-                    operationName: 'TransactionUpdate',
-                }
-            );
-
-            try {
-                await Api.getInstance().request(query, variables);
-            } catch (error: any) {
-                throw new Error(error.response.errors[0].message);
-            }
+            await transactionUpdate({ id: this.#dataValues.id, ...inputValue });
         }
 
         return true;

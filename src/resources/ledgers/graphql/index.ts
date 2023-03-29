@@ -4,6 +4,7 @@ import {
     Ledger,
     LedgerArchiveInput,
     LedgerCreateInput,
+    LedgerUpdateInput,
     MessageOnly,
     Mutation,
 } from '../../../gql-types';
@@ -84,4 +85,36 @@ export const ledgerArchive = async (input: LedgerArchiveInput): Promise<MessageO
     }
 
     return result.ledgerArchive;
+};
+
+export const ledgerUpdate = async (input: LedgerUpdateInput) => {
+    let result: Mutation;
+
+    const fields: Array<keyof Ledger> = ['id'];
+
+    const { query, variables } = gqlBuilder.mutation(
+        {
+            operation: 'ledgerUpdate',
+            fields,
+            variables: {
+                input: {
+                    value: input,
+                    type: 'LedgerUpdateInput',
+                    required: true,
+                },
+            },
+        },
+        undefined,
+        {
+            operationName: 'LedgerUpdate',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result.ledgerUpdate;
 };

@@ -1,11 +1,9 @@
 import _ from 'lodash';
-import Api from '../../../api';
-import * as gqlBuilder from 'gql-query-builder';
 import { LedgerUpdateInput, LedgerCreateInput } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import IModel from '../../model';
-import { ledgerArchive, ledgerCreate } from '../graphql';
+import { ledgerArchive, ledgerCreate, ledgerUpdate } from '../graphql';
 
 const ledgerSchema = object({
     id: string().notRequired(),
@@ -108,29 +106,7 @@ class Ledger implements IModel<ILedger> {
             // We do not update if nothing has changed
             if (_.isEmpty(inputValue)) return false;
 
-            const { query, variables } = gqlBuilder.mutation(
-                {
-                    operation: 'ledgerUpdate',
-                    fields: ['id'],
-                    variables: {
-                        input: {
-                            value: { id: this.#dataValues.id, ...inputValue },
-                            type: 'LedgerUpdateInput',
-                            required: true,
-                        },
-                    },
-                },
-                undefined,
-                {
-                    operationName: 'LedgerUpdate',
-                }
-            );
-
-            try {
-                await Api.getInstance().request(query, variables);
-            } catch (error: any) {
-                throw new Error(error.response.errors[0].message);
-            }
+            await ledgerUpdate({ id: this.#dataValues.id, ...inputValue });
         }
 
         return true;

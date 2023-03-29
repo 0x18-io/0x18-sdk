@@ -6,6 +6,7 @@ import {
     Wallet,
     WalletArchiveInput,
     WalletCreateInput,
+    WalletUpdateInput,
 } from '../../../gql-types';
 
 export const walletCreate = async (wallet: WalletCreateInput): Promise<Wallet> => {
@@ -80,4 +81,36 @@ export const walletArchive = async (input: WalletArchiveInput): Promise<MessageO
     }
 
     return result.walletArchive;
+};
+
+export const walletUpdate = async (input: WalletUpdateInput): Promise<Wallet> => {
+    let result: Mutation;
+
+    const fields: Array<keyof Wallet> = ['id'];
+
+    const { query, variables } = gqlBuilder.mutation(
+        {
+            operation: 'walletUpdate',
+            fields,
+            variables: {
+                input: {
+                    value: input,
+                    type: 'WalletUpdateInput',
+                    required: true,
+                },
+            },
+        },
+        undefined,
+        {
+            operationName: 'WalletUpdate',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result.walletUpdate;
 };
