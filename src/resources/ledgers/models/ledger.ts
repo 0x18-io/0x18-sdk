@@ -97,7 +97,6 @@ class Ledger implements IModel<ILedger> {
     }
 
     static async create(ledger: any): Promise<Ledger> {
-        // this.#cursor = `${ledger.edge.cursor}`;
         const instance = this.build(ledger);
         await instance.save();
         return instance;
