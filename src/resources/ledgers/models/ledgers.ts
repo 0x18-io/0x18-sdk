@@ -1,29 +1,13 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import * as gqlBuilder from 'gql-query-builder';
-import Api from '../../../api';
-import {
-    Mutation,
-    Ledger as LedgerGql,
-    LedgerCreateInput,
-    LedgersInput,
-    LedgerEdge,
-    PageInfo,
-} from '../../../gql-types';
+import { LedgerCreateInput, LedgersInput, LedgerEdge, PageInfo, Maybe } from '../../../gql-types';
 import Ledger from './ledger';
-import { PageInfoFields } from '../../constants';
-import { ledgerCreate } from '../graphql';
+import { ILedgerQueryOptions, ledgerCreate, ledgers } from '../graphql';
 
 type LedgersResponse = {
     pageInfo: PageInfo;
     results: Ledger[];
     fetchMore: any;
 };
-
-type LedgerAttributes = Omit<LedgerGql, 'auditTrail'>;
-
-interface ILedgerQueryOptions {
-    attributes?: Array<keyof LedgerAttributes>;
-}
 
 class Ledgers {
     public config: IConfiguration;
@@ -44,59 +28,13 @@ class Ledgers {
     }
 
     async findAll(input: LedgersInput, options: ILedgerQueryOptions = {}) {
-        // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
-        const defaultNodeProperties: Array<keyof LedgerAttributes> = [
-            'id',
-            'createdAt',
-            'description',
-            'displayName',
-            'precision',
-            'prefix',
-            'reference',
-            'suffix',
-            'transactionsCount',
-            'updatedAt',
-            'walletsCount',
-        ];
-
-        // TODO: create a type for this
-        const fields = [
-            PageInfoFields,
-            {
-                edges: [
-                    {
-                        node: options.attributes ?? defaultNodeProperties,
-                    },
-                    'cursor',
-                ],
-            },
-        ];
-
-        const { query, variables } = gqlBuilder.query(
-            {
-                operation: 'ledgers',
-                fields,
-                variables: {
-                    input: {
-                        value: { ...input },
-                        type: 'LedgersInput',
-                        required: true,
-                    },
-                },
-            },
-            null,
-            {
-                operationName: 'Ledgers',
-            }
-        );
-
-        const data = await Api.getInstance().request(query, variables);
+        const ledgersGql = await ledgers(input, options);
 
         return <LedgersResponse>{
             fetchMore: async (fetchMoreInput: LedgersInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
-                    fetchMoreInput.after = data.ledgers.pageInfo.endCursor;
+                    fetchMoreInput.after = ledgersGql?.pageInfo?.endCursor;
                     fetchMoreInput = { ...fetchMoreInput, ...input };
                 }
 
@@ -107,8 +45,10 @@ class Ledgers {
                     options
                 );
             },
-            pageInfo: data.ledgers.pageInfo,
-            results: Api.getEdges('ledgers', data).map((le: LedgerEdge) => Ledger.build(le.node!)),
+            pageInfo: ledgersGql?.pageInfo,
+            results: ledgersGql?.edges?.map((ledger: Maybe<LedgerEdge>) =>
+                Ledger.build(ledger?.node)
+            ),
         };
     }
 }

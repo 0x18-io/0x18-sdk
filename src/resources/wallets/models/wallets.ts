@@ -1,27 +1,13 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import * as gqlBuilder from 'gql-query-builder';
-import Api from '../../../api';
 import Wallet from './wallet';
-import {
-    WalletEdge,
-    WalletsInput,
-    Wallet as WalletGql,
-    PageInfo,
-    WalletCreateInput,
-} from '../../../gql-types';
-import { walletCreate } from '../graphql';
+import { WalletEdge, WalletsInput, PageInfo, WalletCreateInput, Maybe } from '../../../gql-types';
+import { IWalletQueryOptions, walletCreate, wallets } from '../graphql';
 
 type WalletsResponse = {
     pageInfo: PageInfo;
     results: Wallet[];
     fetchMore: any;
 };
-
-type WalletAttributes = Omit<Omit<Omit<WalletGql, 'ledgers'>, 'auditTrail'>, 'transactions'>;
-
-interface IWalletQueryOptions {
-    attributes?: Array<keyof WalletAttributes>;
-}
 
 class Wallets {
     public config: IConfiguration;
@@ -42,65 +28,13 @@ class Wallets {
     }
 
     async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
-        // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
-        const defaultNodeProperties: Array<keyof WalletAttributes> = [
-            'id',
-            'reference',
-            'description',
-            'displayName',
-            'metadata',
-            'transactionsCount',
-            'ledgersCount',
-            'createdAt',
-            'updatedAt',
-        ];
-
-        const pageInfo: Array<keyof PageInfo> = [
-            'hasNextPage',
-            'hasPreviousPage',
-            'startCursor',
-            'endCursor',
-        ];
-
-        const fields = [
-            {
-                pageInfo,
-            },
-            {
-                edges: [
-                    {
-                        node: options.attributes ?? defaultNodeProperties,
-                    },
-                    'cursor',
-                ],
-            },
-        ];
-
-        const { query, variables } = gqlBuilder.query(
-            {
-                operation: 'wallets',
-                fields,
-                variables: {
-                    input: {
-                        value: { ...input },
-                        type: 'WalletsInput',
-                        required: true,
-                    },
-                },
-            },
-            null,
-            {
-                operationName: 'Wallets',
-            }
-        );
-
-        const data = await Api.getInstance().request(query, variables);
+        const walletsGql = await wallets(input, options);
 
         return <WalletsResponse>{
             fetchMore: async (fetchMoreInput: WalletsInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
-                    fetchMoreInput.after = data.wallets.pageInfo.endCursor;
+                    fetchMoreInput.after = walletsGql?.pageInfo?.endCursor;
                     fetchMoreInput = { ...fetchMoreInput, ...input };
                 }
 
@@ -111,10 +45,8 @@ class Wallets {
                     options
                 );
             },
-            pageInfo: data.wallets.pageInfo,
-            results: Api.getEdges('wallets', data).map((edge: WalletEdge) =>
-                Wallet.build(edge.node)
-            ),
+            pageInfo: walletsGql?.pageInfo,
+            results: walletsGql?.edges?.map((edge: Maybe<WalletEdge>) => Wallet.build(edge?.node)),
         };
     }
 }

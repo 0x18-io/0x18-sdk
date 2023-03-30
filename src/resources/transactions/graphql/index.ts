@@ -3,14 +3,25 @@ import Api from '../../../api';
 import {
     Ledger,
     Mutation,
+    Query,
+    Transaction,
     TransactionCreateItem,
     TransactionCreateResponse,
     TransactionItem,
+    TransactionsInput,
+    TransactionsSearchConnection,
     TransactionUpdateInput,
 } from '../../../gql-types';
+import { PageInfoFields } from '../../constants';
+
+type TransactionAttributes = Omit<Transaction, 'auditTrail'>;
 
 export interface ITransactionCreateOptions {
     atomic: boolean;
+}
+
+export interface ITransactionQueryOptions {
+    attributes?: Array<keyof TransactionAttributes>;
 }
 
 export const transactionCreate = async (
@@ -93,4 +104,66 @@ export const transactionUpdate = async (input: TransactionUpdateInput): Promise<
     }
 
     return result.ledgerUpdate;
+};
+
+export const transactions = async (
+    input: TransactionsInput,
+    options: ITransactionQueryOptions = {}
+): Promise<TransactionsSearchConnection> => {
+    let result: Query;
+
+    const defaultNodeProperties: Array<keyof TransactionAttributes> = [
+        'amount',
+        'balance',
+        'createdAt',
+        'description',
+        'errors',
+        'hash',
+        'id',
+        'identity',
+        'metadata',
+        'method',
+        'reference',
+        'status',
+        'tags',
+        'updatedAt',
+    ];
+
+    const fields = [
+        PageInfoFields,
+        {
+            edges: [
+                {
+                    node: options.attributes ?? defaultNodeProperties,
+                },
+                'cursor',
+            ],
+        },
+    ];
+
+    const { query, variables } = gqlBuilder.query(
+        {
+            operation: 'transactions',
+            fields,
+            variables: {
+                input: {
+                    value: { ...input },
+                    type: 'TransactionsGetInput',
+                    required: true,
+                },
+            },
+        },
+        null,
+        {
+            operationName: 'Transactions',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result.transactions!;
 };

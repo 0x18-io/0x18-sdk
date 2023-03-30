@@ -4,10 +4,20 @@ import {
     Ledger,
     LedgerArchiveInput,
     LedgerCreateInput,
+    LedgersConnection,
+    LedgersInput,
     LedgerUpdateInput,
     MessageOnly,
     Mutation,
+    Query,
 } from '../../../gql-types';
+import { PageInfoFields } from '../../constants';
+
+type LedgerAttributes = Omit<Ledger, 'auditTrail'>;
+
+export interface ILedgerQueryOptions {
+    attributes?: Array<keyof LedgerAttributes>;
+}
 
 export const ledgerCreate = async (ledger: LedgerCreateInput): Promise<Ledger> => {
     let result: Mutation;
@@ -117,4 +127,63 @@ export const ledgerUpdate = async (input: LedgerUpdateInput) => {
     }
 
     return result.ledgerUpdate;
+};
+
+export const ledgers = async (
+    input: LedgersInput,
+    options: ILedgerQueryOptions = {}
+): Promise<LedgersConnection> => {
+    let result: Query;
+
+    const defaultNodeProperties: Array<keyof LedgerAttributes> = [
+        'id',
+        'createdAt',
+        'description',
+        'displayName',
+        'precision',
+        'prefix',
+        'reference',
+        'suffix',
+        'transactionsCount',
+        'updatedAt',
+        'walletsCount',
+    ];
+
+    const fields = [
+        PageInfoFields,
+        {
+            edges: [
+                {
+                    node: options.attributes ?? defaultNodeProperties,
+                },
+                'cursor',
+            ],
+        },
+    ];
+
+    const { query, variables } = gqlBuilder.query(
+        {
+            operation: 'ledgers',
+            fields,
+            variables: {
+                input: {
+                    value: { ...input },
+                    type: 'LedgersInput',
+                    required: true,
+                },
+            },
+        },
+        null,
+        {
+            operationName: 'Ledgers',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result.ledgers!;
 };
