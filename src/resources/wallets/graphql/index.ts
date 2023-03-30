@@ -1,6 +1,7 @@
 import * as gqlBuilder from 'gql-query-builder';
 import Api from '../../../api';
 import {
+    Maybe,
     MessageOnly,
     Mutation,
     PageInfo,
@@ -9,6 +10,7 @@ import {
     WalletArchiveInput,
     WalletConnection,
     WalletCreateInput,
+    WalletLedger,
     WalletsInput,
     WalletUpdateInput,
 } from '../../../gql-types';
@@ -190,4 +192,58 @@ export const wallets = async (
     }
 
     return result.wallets!;
+};
+
+export const walletLedgers = async (input: WalletsInput): Promise<Maybe<WalletLedger>[]> => {
+    let result: Query;
+
+    const ledgersQuery: Array<keyof WalletLedger> = [
+        'id',
+        'balance',
+        'suffix',
+        'avatarUrl',
+        'prefix',
+        'reference',
+        'displayName',
+        'description',
+        'precision',
+    ];
+
+    const { query, variables } = gqlBuilder.query(
+        {
+            operation: 'wallets',
+            fields: [
+                {
+                    edges: [
+                        {
+                            node: [
+                                {
+                                    ledgers: ledgersQuery,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            variables: {
+                input: {
+                    value: input,
+                    type: 'WalletsInput',
+                    required: true,
+                },
+            },
+        },
+        null,
+        {
+            operationName: 'WalletLedger',
+        }
+    );
+
+    try {
+        result = await Api.getInstance().request(query, variables);
+    } catch (error: any) {
+        throw new Error(error.response.errors[0].message);
+    }
+
+    return result?.wallets?.edges?.[0]?.node?.ledgers!;
 };

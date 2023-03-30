@@ -72,7 +72,6 @@ class ApiDecoratorService {
         try {
             return await requestPromise;
         } catch (e) {
-            console.log(e);
             const updatedCount = retriesCount + 1;
             if (updatedCount > retries) {
                 return null;

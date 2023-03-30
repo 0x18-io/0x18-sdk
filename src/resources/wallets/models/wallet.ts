@@ -1,12 +1,9 @@
 import _ from 'lodash';
-import Api from '../../../api';
-import * as gqlBuilder from 'gql-query-builder';
-import { Query, WalletsInput, WalletLedger as WalletLedgerGql } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import WalletLedger from '../dto/wallet-ledger';
 import IModel from '../../model';
-import { walletArchive, walletCreate, walletUpdate } from '../graphql';
+import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -128,55 +125,9 @@ class Wallet implements IModel<IWallet> {
         }
 
         // TODO: lazy load?
+        const walletLedgersGql = await walletLedgers({ id: this.#dataValues.id });
 
-        const walletsInput: WalletsInput = { id: this.#dataValues.id };
-        const ledgersQuery: Array<keyof WalletLedgerGql> = [
-            'id',
-            'balance',
-            'suffix',
-            'avatarUrl',
-            'prefix',
-            'reference',
-            'displayName',
-            'description',
-            'precision',
-        ];
-
-        const { query, variables } = gqlBuilder.query(
-            {
-                operation: 'wallets',
-                fields: [
-                    {
-                        edges: [
-                            {
-                                node: [
-                                    {
-                                        ledgers: ledgersQuery,
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-                variables: {
-                    input: {
-                        value: walletsInput,
-                        type: 'WalletsInput',
-                        required: true,
-                    },
-                },
-            },
-            null,
-            {
-                operationName: 'WalletLedger',
-            }
-        );
-
-        const walletLedgers: Query = await Api.getInstance().request(query, variables);
-
-        this.#dataValues.ledgers = walletLedgers?.wallets?.edges?.[0]?.node?.ledgers?.map(
-            (wl) => new WalletLedger(wl!)
-        );
+        this.#dataValues.ledgers = walletLedgersGql.map((wl) => new WalletLedger(wl!));
 
         this.ledgers = this.#dataValues.ledgers;
 
