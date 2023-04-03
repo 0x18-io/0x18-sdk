@@ -139,26 +139,45 @@ const ox = new Client({ apiKey: <api-key> });
 ## Wallets
 
 ### Create
+
 TBD
+
 ### Read
+
 TBD
+
 ### Updated
+
 TBD
+
 ### Delete
+
+TBD
 
 ## Transactions
 
 ### Create
+
 TBD
+
 ### Create bulk
+
 TBD
+
 ### Read
+
 TBD
+
 ### Updated
+
 TBD
+
 ### Delete
 
+TBD
+
 ## Accessing nested resources
+
 TBD
 
 ## Links
