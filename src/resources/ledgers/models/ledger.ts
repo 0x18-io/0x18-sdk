@@ -18,6 +18,7 @@ const ledgerSchema = object({
     updatedAt: date().notRequired(),
     createdAt: date().notRequired(),
     balance: string().notRequired(),
+    avatarUrl: string().notRequired(),
 });
 
 export interface ILedger extends InferType<typeof ledgerSchema> {}
@@ -39,6 +40,8 @@ class Ledger implements IModel<ILedger> {
     prefix?: string;
     suffix?: string;
     reference?: string;
+    avatarUrl?: string;
+    balance?: string;
 
     private constructor(ledger: any) {
         Object.assign(this, ledger);

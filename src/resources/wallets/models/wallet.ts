@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import WalletLedger from '../dto/wallet-ledger';
 import IModel from '../../model';
 import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
+import Ledger from '../../ledgers';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -18,7 +18,7 @@ const walletSchema = object({
 });
 
 export interface IWallet extends InferType<typeof walletSchema> {
-    ledgers?: WalletLedger[];
+    ledgers?: Ledger[];
 }
 
 class Wallet implements IModel<IWallet> {
@@ -36,7 +36,7 @@ class Wallet implements IModel<IWallet> {
     ledgersCount?: number;
     updatedAt?: Date;
     createdAt?: Date;
-    ledgers?: WalletLedger[];
+    ledgers?: Ledger[];
 
     private constructor(wallet: any) {
         Object.assign(this, wallet);
@@ -118,7 +118,7 @@ class Wallet implements IModel<IWallet> {
         }
     }
 
-    async getLedgers(): Promise<WalletLedger[] | undefined> {
+    async getLedgers(): Promise<Ledger[] | undefined> {
         // If operation is already running we do nothing
         if (!this.#dataValues?.id) {
             return undefined;
@@ -127,7 +127,7 @@ class Wallet implements IModel<IWallet> {
         // TODO: lazy load?
         const walletLedgersGql = await walletLedgers({ id: this.#dataValues.id });
 
-        this.#dataValues.ledgers = walletLedgersGql.map((wl) => new WalletLedger(wl!));
+        this.#dataValues.ledgers = walletLedgersGql.map((wl) => Ledger.build(wl!));
 
         this.ledgers = this.#dataValues.ledgers;
 
