@@ -66,13 +66,7 @@ class Transaction implements IModel<ITransaction> {
         this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
     }
 
-    private init(transaction: TransactionItem) {
-        Object.assign(this, transaction);
-
-        this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
-    }
-
-    public static readonly METHODS = {
+    static readonly METHODS = {
         MINT: TransactionMethods.Mint,
         BURN: TransactionMethods.Burn,
     };
@@ -94,12 +88,18 @@ class Transaction implements IModel<ITransaction> {
         return instance;
     }
 
+    #init(transaction: TransactionItem) {
+        Object.assign(this, transaction);
+
+        this.#dataValues = transactionSchema.cast(_.cloneDeep(transaction));
+    }
+
     async #saveHttp() {
         const inputValue: { [key: string]: any } = {};
 
         if (!this.id) {
             const transactionGql = await transactionCreate([this as TransactionCreateItem]);
-            this.init(transactionGql.transactions[0]);
+            this.#init(transactionGql.transactions[0]);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {

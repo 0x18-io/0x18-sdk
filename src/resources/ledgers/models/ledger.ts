@@ -60,12 +60,6 @@ class Ledger implements IModel<ILedger> {
         this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
 
-    private init(ledger: any) {
-        Object.assign(this, ledger);
-
-        this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
-    }
-
     static build(ledger: any): Ledger {
         const instance = new Ledger(ledger);
 
@@ -83,9 +77,10 @@ class Ledger implements IModel<ILedger> {
         return instance;
     }
 
-    async archive() {
-        await ledgerArchive({ id: this.#dataValues.id });
-        return true;
+    #init(ledger: any) {
+        Object.assign(this, ledger);
+
+        this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
     }
 
     async #saveHttp() {
@@ -94,7 +89,7 @@ class Ledger implements IModel<ILedger> {
         if (!this.id) {
             const ledgerGql = await ledgerCreate(this as LedgerCreateInput);
 
-            this.init(ledgerGql);
+            this.#init(ledgerGql);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
@@ -130,6 +125,11 @@ class Ledger implements IModel<ILedger> {
         } finally {
             this.#updatingSemaphore.release();
         }
+    }
+
+    async archive() {
+        await ledgerArchive({ id: this.#dataValues.id });
+        return true;
     }
 }
 

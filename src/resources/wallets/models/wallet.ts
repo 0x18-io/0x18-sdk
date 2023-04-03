@@ -48,7 +48,7 @@ class Wallet implements IModel<IWallet> {
         this.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
     }
 
-    private init(wallet: any) {
+    #init(wallet: any) {
         Object.assign(this, wallet);
 
         this.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
@@ -71,17 +71,12 @@ class Wallet implements IModel<IWallet> {
         return instance;
     }
 
-    async archive() {
-        await walletArchive({ id: this.#dataValues.id });
-        return true;
-    }
-
     async #saveHttp() {
         const inputValue: { [key: string]: any } = {};
 
         if (!this.id) {
             const walletGql = await walletCreate(this);
-            this.init(walletGql);
+            this.#init(walletGql);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {
@@ -116,6 +111,11 @@ class Wallet implements IModel<IWallet> {
         } finally {
             this.#updatingSemaphore.release();
         }
+    }
+
+    async archive() {
+        await walletArchive({ id: this.#dataValues.id });
+        return true;
     }
 
     async getLedgers(): Promise<Ledger[] | undefined> {

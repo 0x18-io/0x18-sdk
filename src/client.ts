@@ -22,7 +22,8 @@ class Client {
         this.config = { ...defaultOptions, ...config };
         this.init();
     }
-    public init() {
+
+    init() {
         if (
             this.config.numberOfApiCallRetries &&
             !inRange(this.config.numberOfApiCallRetries, 0, 6)
