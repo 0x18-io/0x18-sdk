@@ -136,6 +136,31 @@ const ox = new Client({ apiKey: <api-key> });
 })();
 ```
 
+## Wallets
+
+### Create
+TBD
+### Read
+TBD
+### Updated
+TBD
+### Delete
+
+## Transactions
+
+### Create
+TBD
+### Create bulk
+TBD
+### Read
+TBD
+### Updated
+TBD
+### Delete
+
+## Accessing nested resources
+TBD
+
 ## Links
 
 -   [Official documentation](https://docs.0x18.io/)
