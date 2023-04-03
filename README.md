@@ -113,7 +113,7 @@ const ox = new Client({ apiKey: <api-key> });
     // Update ledger property
     ledger.description = 'HELLO FROM SDK';
 
-    // Update ledger with updated property values
+    // Commit ledger updates to API
     await ledger.save()
 })();
 ```
