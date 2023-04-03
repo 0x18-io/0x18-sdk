@@ -4,6 +4,7 @@ import Wallets from './resources/wallets/models/wallets';
 import graphqlClient from './api';
 import Ledgers from './resources/ledgers/models/ledgers';
 import Transactions from './resources/transactions/models/transactions';
+import GqlClient from './resources/gql-client';
 
 class Client {
     public config: IConfiguration;
@@ -11,6 +12,7 @@ class Client {
     protected _wallets: Wallets | undefined;
     protected _ledgers: Ledgers | undefined;
     protected _transactions: Transactions | undefined;
+    protected _gqlClient: GqlClient | undefined;
 
     constructor(config: IConfiguration = {}) {
         const defaultOptions = {
@@ -60,6 +62,16 @@ class Client {
         if (!this._transactions) this._transactions = new Transactions(this.config);
 
         return this._transactions;
+    }
+
+    /**
+     * Getter
+     * @returns GqlClient
+     */
+    get gqlClient(): GqlClient {
+        if (!this._gqlClient) this._gqlClient = new GqlClient();
+
+        return this._gqlClient;
     }
 }
 
