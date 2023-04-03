@@ -21,9 +21,9 @@ class Wallets {
         return Wallet.build(walletGql);
     }
 
-    async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
+    async findOne(input?: WalletsInput, options: IWalletQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: any) => response.results?.[0] ?? null
+            (response: WalletsResponse) => response.results?.[0] ?? null
         );
     }
 

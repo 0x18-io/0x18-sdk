@@ -44,9 +44,9 @@ class Transactions {
         return Transaction.build(transactionsGql.transactions[0]);
     }
 
-    async findOne(input: TransactionsGetInput, options: ITransactionQueryOptions = {}) {
+    async findOne(input?: TransactionsGetInput, options: ITransactionQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: any) => response.results?.[0] ?? null
+            (response: TransactionsResponse) => response.results?.[0] ?? null
         );
     }
 

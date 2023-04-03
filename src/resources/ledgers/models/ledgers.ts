@@ -21,9 +21,9 @@ class Ledgers {
         return Ledger.build(ledgerGql);
     }
 
-    async findOne(input: LedgersInput, options: ILedgerQueryOptions = {}) {
+    async findOne(input?: LedgersInput, options: ILedgerQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: any) => response.results?.[0] ?? null
+            (response: LedgersResponse) => response.results?.[0] ?? null
         );
     }
 
