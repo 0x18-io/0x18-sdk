@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import { IModel } from '../../interfaces';
+import { IModel, IPaginatedResponse } from '../../interfaces';
 import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
 import Ledger from '../../ledgers';
 
@@ -36,7 +36,7 @@ class Wallet implements IModel<IWallet> {
     ledgersCount?: number;
     updatedAt?: Date;
     createdAt?: Date;
-    ledgers?: Ledger[];
+    ledgers?: IPaginatedResponse<Ledger>;
 
     private constructor(wallet: any) {
         Object.assign(this, wallet);
@@ -118,16 +118,14 @@ class Wallet implements IModel<IWallet> {
         return true;
     }
 
-    async getLedgers(): Promise<Ledger[] | undefined> {
+    async getLedgers(): Promise<IPaginatedResponse<Ledger> | undefined> {
         // If operation is already running we do nothing
         if (!this.#dataValues?.id) {
             return undefined;
         }
 
         // TODO: lazy load?
-        const walletLedgersGql = await walletLedgers({ id: this.#dataValues.id });
-
-        this.#dataValues.ledgers = walletLedgersGql.map((wl) => Ledger.build(wl!));
+        this.#dataValues.ledgers = await walletLedgers({ id: this.#dataValues.id });
 
         this.ledgers = this.#dataValues.ledgers;
 

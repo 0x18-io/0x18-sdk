@@ -4,17 +4,21 @@ import {
     Maybe,
     MessageOnly,
     Mutation,
-    PageInfo,
     Query,
+    TransactionsInput,
     Wallet,
     WalletArchiveInput,
     WalletConnection,
     WalletCreateInput,
     WalletLedger,
+    WalletLedgerConnection,
+    WalletLedgerEdge,
     WalletsInput,
     WalletUpdateInput,
 } from '../../../gql-types';
 import { PageInfoFields } from '../../constants';
+import { IPaginatedResponse } from '../../interfaces';
+import Ledger from '../../ledgers';
 
 // For now we omit nested resources
 type WalletAttributes = Omit<Omit<Omit<Wallet, 'ledgers'>, 'auditTrail'>, 'transactions'>;
@@ -186,7 +190,7 @@ export const wallets = async (
     return result.wallets!;
 };
 
-export const walletLedgers = async (input: WalletsInput): Promise<Maybe<WalletLedger>[]> => {
+export const walletLedgers = async (input: WalletsInput) => {
     let result: Query;
 
     const ledgersQuery: Array<keyof WalletLedger> = [
@@ -201,6 +205,18 @@ export const walletLedgers = async (input: WalletsInput): Promise<Maybe<WalletLe
         'precision',
     ];
 
+    const fields = [
+        PageInfoFields,
+        {
+            edges: [
+                {
+                    node: ledgersQuery,
+                },
+                'cursor',
+            ],
+        },
+    ];
+
     const { query, variables } = gqlBuilder.query(
         {
             operation: 'wallets',
@@ -210,7 +226,7 @@ export const walletLedgers = async (input: WalletsInput): Promise<Maybe<WalletLe
                         {
                             node: [
                                 {
-                                    ledgers: ledgersQuery,
+                                    ledgers: fields,
                                 },
                             ],
                         },
@@ -237,5 +253,27 @@ export const walletLedgers = async (input: WalletsInput): Promise<Maybe<WalletLe
         throw new Error(error.response.errors[0].message);
     }
 
-    return result?.wallets?.edges?.[0]?.node?.ledgers!;
+    const walletLedgersGql = result.wallets?.edges?.[0]?.node?.ledgers;
+
+    console.log(JSON.stringify(result, null, 2));
+
+    console.log(JSON.stringify(walletLedgersGql));
+
+    return <IPaginatedResponse<Ledger>>{
+        fetchMore: async (fetchMoreInput: TransactionsInput = {}) => {
+            // TODO: Clean up how this works
+            if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
+                fetchMoreInput.after = walletLedgersGql?.pageInfo?.endCursor;
+                fetchMoreInput = { ...fetchMoreInput, ...input };
+            }
+
+            return walletLedgers({
+                ...(fetchMoreInput ?? input),
+            });
+        },
+        pageInfo: walletLedgersGql?.pageInfo,
+        results: walletLedgersGql?.edges?.map((edge: Maybe<WalletLedgerEdge>) =>
+            Ledger.build(edge?.node)
+        ),
+    };
 };
