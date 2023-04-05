@@ -1,9 +1,16 @@
 {
     "name": "0x18-sdk",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.ts",
+    "description": "Official 0x18-sdk",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
     "module": "index.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "package.json"
+    ],
     "scripts": {
         "test": "jest",
         "prepare": "yarn build",

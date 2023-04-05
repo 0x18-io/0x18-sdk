@@ -32,7 +32,7 @@ const transactionSchema = object({
 
 export interface ITransaction extends InferType<typeof transactionSchema> {}
 
-class Transaction implements IModel<ITransaction> {
+class Transaction implements IModel {
     #dataValues: any;
     #previousDataValues: any;
     #updatableAttributes: Array<keyof Omit<TransactionUpdateInput, 'id'>>;
@@ -99,7 +99,7 @@ class Transaction implements IModel<ITransaction> {
 
         if (!this.id) {
             const transactionGql = await transactionCreate([this as TransactionCreateItem]);
-            this.#init(transactionGql.transactions[0]);
+            this.#init(transactionGql.transactions[0]!);
         } else {
             // Do a delta check to only update changed fields
             this.#updatableAttributes.forEach((key) => {

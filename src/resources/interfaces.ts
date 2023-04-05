@@ -1,6 +1,6 @@
 import { PageInfo } from '../gql-types';
 
-export interface IModel<T> {
+export interface IModel {
     save: () => Promise<boolean>;
     archive: () => Promise<boolean> | Promise<void>;
 }
