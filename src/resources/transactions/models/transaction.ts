@@ -7,7 +7,7 @@ import {
 } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, object, string, InferType, array, mixed } from 'yup';
-import IModel from '../../model';
+import { IModel } from '../../interfaces';
 import { transactionCreate, transactionUpdate } from '../graphql';
 
 const transactionSchema = object({

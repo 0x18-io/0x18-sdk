@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import IModel from '../../model';
+import { IModel } from '../../interfaces';
 import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
 import Ledger from '../../ledgers';
 

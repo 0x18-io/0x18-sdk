@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { LedgerUpdateInput, LedgerCreateInput } from '../../../gql-types';
 import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
-import IModel from '../../model';
+import { IModel } from '../../interfaces';
 import { ledgerArchive, ledgerCreate, ledgerUpdate } from '../graphql';
 
 const ledgerSchema = object({

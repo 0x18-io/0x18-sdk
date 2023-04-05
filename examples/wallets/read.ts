@@ -24,6 +24,6 @@ const ox = new Client({
     console.log(singleNode.description);
     console.log(singleNode.displayName);
     console.log(singleNode.reference);
-    console.log(singleNode.ledgers?.[0]?.id);
-    console.log(singleNode.ledgers?.[0]?.balance?.toString());
+    console.log(singleNode.ledgers?.results[0]);
+    console.log(singleNode.ledgers?.results[0].balance?.toString());
 })();

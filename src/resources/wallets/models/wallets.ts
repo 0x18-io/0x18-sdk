@@ -1,13 +1,8 @@
 import IConfiguration from '../../../configuration/IConfiguration';
 import Wallet from './wallet';
-import { WalletEdge, WalletsInput, PageInfo, WalletCreateInput, Maybe } from '../../../gql-types';
+import { WalletEdge, WalletsInput, WalletCreateInput, Maybe } from '../../../gql-types';
 import { IWalletQueryOptions, walletCreate, wallets } from '../graphql';
-
-type WalletsResponse = {
-    pageInfo: PageInfo;
-    results: Wallet[];
-    fetchMore: any;
-};
+import { IPaginatedResponse } from '../../interfaces';
 
 class Wallets {
     public config: IConfiguration;
@@ -23,14 +18,14 @@ class Wallets {
 
     async findOne(input?: WalletsInput, options: IWalletQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: WalletsResponse) => response.results?.[0] ?? null
+            (response: IPaginatedResponse<Wallet>) => response.results?.[0] ?? null
         );
     }
 
     async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
         const walletsGql = await wallets(input, options);
 
-        return <WalletsResponse>{
+        return <IPaginatedResponse<Wallet>>{
             fetchMore: async (fetchMoreInput: WalletsInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {

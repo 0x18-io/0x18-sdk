@@ -14,6 +14,7 @@ import {
     WalletsInput,
     WalletUpdateInput,
 } from '../../../gql-types';
+import { PageInfoFields } from '../../constants';
 
 // For now we omit nested resources
 type WalletAttributes = Omit<Omit<Omit<Wallet, 'ledgers'>, 'auditTrail'>, 'transactions'>;
@@ -146,17 +147,8 @@ export const wallets = async (
         'updatedAt',
     ];
 
-    const pageInfo: Array<keyof PageInfo> = [
-        'hasNextPage',
-        'hasPreviousPage',
-        'startCursor',
-        'endCursor',
-    ];
-
     const fields = [
-        {
-            pageInfo,
-        },
+        PageInfoFields,
         {
             edges: [
                 {

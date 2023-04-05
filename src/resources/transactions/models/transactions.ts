@@ -1,7 +1,6 @@
 import IConfiguration from '../../../configuration/IConfiguration';
 import {
     TransactionsInput,
-    PageInfo,
     TransactionsGetInput,
     TransactionCreateItem,
     TransactionsSearchEdge,
@@ -14,12 +13,7 @@ import {
     transactionCreate,
     transactions,
 } from '../graphql';
-
-type TransactionsResponse = {
-    pageInfo: PageInfo;
-    results: Transaction[];
-    fetchMore: any;
-};
+import { IPaginatedResponse } from '../../interfaces';
 
 class Transactions {
     public config: IConfiguration;
@@ -46,14 +40,14 @@ class Transactions {
 
     async findOne(input?: TransactionsGetInput, options: ITransactionQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: TransactionsResponse) => response.results?.[0] ?? null
+            (response: IPaginatedResponse<Transaction>) => response.results?.[0] ?? null
         );
     }
 
     async findAll(input: TransactionsInput, options: ITransactionQueryOptions = {}) {
         const transactionsGql = await transactions(input, options);
 
-        return <TransactionsResponse>{
+        return <IPaginatedResponse<Transaction>>{
             fetchMore: async (fetchMoreInput: TransactionsInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {

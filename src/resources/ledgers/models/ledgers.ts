@@ -1,13 +1,8 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import { LedgerCreateInput, LedgersInput, LedgerEdge, PageInfo, Maybe } from '../../../gql-types';
+import { LedgerCreateInput, LedgersInput, LedgerEdge, Maybe } from '../../../gql-types';
 import Ledger from './ledger';
 import { ILedgerQueryOptions, ledgerCreate, ledgers } from '../graphql';
-
-type LedgersResponse = {
-    pageInfo: PageInfo;
-    results: Ledger[];
-    fetchMore: any;
-};
+import { IPaginatedResponse } from '../../interfaces';
 
 class Ledgers {
     public config: IConfiguration;
@@ -23,14 +18,14 @@ class Ledgers {
 
     async findOne(input?: LedgersInput, options: ILedgerQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: LedgersResponse) => response.results?.[0] ?? null
+            (response: IPaginatedResponse<Ledger>) => response.results?.[0] ?? null
         );
     }
 
     async findAll(input: LedgersInput, options: ILedgerQueryOptions = {}) {
         const ledgersGql = await ledgers(input, options);
 
-        return <LedgersResponse>{
+        return <IPaginatedResponse<Ledger>>{
             fetchMore: async (fetchMoreInput: LedgersInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
