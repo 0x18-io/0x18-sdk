@@ -30,8 +30,4 @@ const ox = new Client({
     // This is for testing race conditions
     // const saved = await Promise.all([singleNode.save(), singleNode.save()]);
     console.log('SAVING DONE', saved);
-
-    console.log('REFETCHING');
-    const refetched = await singleNode.refetch();
-    console.log('REFETCHING DONE', refetched);
 })();

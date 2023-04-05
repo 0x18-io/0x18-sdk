@@ -12,6 +12,7 @@ export type Scalars = {
     Float: number;
     Date: any;
     JSON: any;
+    NonEmptyString: any;
 };
 
 export type AuditTrail = {
@@ -66,6 +67,7 @@ export enum IdentityRole {
 export type Ledger = {
     auditTrail?: Maybe<AuditTrailConnection>;
     avatarUrl?: Maybe<Scalars['String']>;
+    balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
     description?: Maybe<Scalars['String']>;
     displayName?: Maybe<Scalars['String']>;
@@ -138,6 +140,7 @@ export type Mutation = {
     ledgerCreate: Ledger;
     ledgerUpdate: Ledger;
     metadataValidate: MessageOnly;
+    ruleValidate: MessageOnly;
     transactionCreate: TransactionCreateResponse;
     transactionUpdate: Transaction;
     walletArchive: MessageOnly;
@@ -159,6 +162,10 @@ export type MutationLedgerUpdateArgs = {
 
 export type MutationMetadataValidateArgs = {
     metadata?: InputMaybe<Scalars['JSON']>;
+};
+
+export type MutationRuleValidateArgs = {
+    rule?: InputMaybe<Scalars['JSON']>;
 };
 
 export type MutationTransactionCreateArgs = {
@@ -240,12 +247,12 @@ export type TransactionCreateInput = {
 };
 
 export type TransactionCreateItem = {
-    amount: Scalars['String'];
-    idempotencyKey?: InputMaybe<Scalars['String']>;
-    ledgerId: Scalars['String'];
+    amount: Scalars['NonEmptyString'];
+    idempotencyKey?: InputMaybe<Scalars['NonEmptyString']>;
+    ledgerId: Scalars['NonEmptyString'];
     metadata?: InputMaybe<Scalars['JSON']>;
     method: TransactionMethods;
-    walletId: Scalars['String'];
+    walletId: Scalars['NonEmptyString'];
 };
 
 export type TransactionCreateResponse = {
@@ -334,13 +341,17 @@ export type Wallet = {
     description?: Maybe<Scalars['String']>;
     displayName?: Maybe<Scalars['String']>;
     id?: Maybe<Scalars['ID']>;
-    ledgers?: Maybe<Array<Maybe<WalletLedger>>>;
+    ledgers?: Maybe<WalletLedgerConnection>;
     ledgersCount?: Maybe<Scalars['Int']>;
     metadata?: Maybe<Scalars['JSON']>;
     reference?: Maybe<Scalars['String']>;
     transactions?: Maybe<TransactionConnection>;
     transactionsCount?: Maybe<Scalars['Int']>;
     updatedAt?: Maybe<Scalars['Date']>;
+};
+
+export type WalletLedgersArgs = {
+    input?: InputMaybe<WalletLedgersInput>;
 };
 
 export type WalletTransactionsArgs = {
@@ -380,6 +391,27 @@ export type WalletLedger = {
     suffix?: Maybe<Scalars['String']>;
 };
 
+export type WalletLedgerConnection = {
+    edges?: Maybe<Array<Maybe<WalletLedgerEdge>>>;
+    pageInfo?: Maybe<PageInfo>;
+    totalCount?: Maybe<Scalars['Int']>;
+};
+
+export type WalletLedgerEdge = {
+    cursor: Scalars['String'];
+    node?: Maybe<WalletLedger>;
+};
+
+export type WalletLedgersInput = {
+    after?: InputMaybe<Scalars['String']>;
+    before?: InputMaybe<Scalars['String']>;
+    first?: InputMaybe<Scalars['Int']>;
+    last?: InputMaybe<Scalars['Int']>;
+    ledgerId?: InputMaybe<Scalars['String']>;
+    ledgerIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+    reverse?: InputMaybe<Scalars['Boolean']>;
+};
+
 export type WalletTransaction = {
     amount?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
@@ -407,7 +439,6 @@ export type WalletsInput = {
     id?: InputMaybe<Scalars['String']>;
     ids?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     last?: InputMaybe<Scalars['Int']>;
-    ledgerIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
     query?: InputMaybe<Scalars['String']>;
     reverse?: InputMaybe<Scalars['Boolean']>;
 };

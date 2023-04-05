@@ -1,27 +1,8 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import * as gqlBuilder from 'gql-query-builder';
-import Api from '../../../api';
-import WalletModel from './wallet-model';
-import {
-    Mutation,
-    WalletEdge,
-    WalletsInput,
-    Wallet as WalletGql,
-    PageInfo,
-} from '../../../gql-types';
-import { INewWallet } from '../dto/wallet';
-
-type WalletsResponse = {
-    pageInfo: PageInfo;
-    results: WalletModel[];
-    fetchMore: any;
-};
-
-type WalletAttributes = Omit<Omit<Omit<WalletGql, 'ledgers'>, 'auditTrail'>, 'transactions'>;
-
-interface IWalletQueryOptions {
-    attributes?: Array<keyof WalletAttributes>;
-}
+import Wallet from './wallet';
+import { WalletEdge, WalletsInput, WalletCreateInput, Maybe } from '../../../gql-types';
+import { IWalletQueryOptions, walletCreate, wallets } from '../graphql';
+import { IPaginatedResponse } from '../../interfaces';
 
 class Wallets {
     public config: IConfiguration;
@@ -30,103 +11,25 @@ class Wallets {
         this.config = config;
     }
 
-    async create(wallet: INewWallet) {
-        let result: Mutation;
-
-        const { query, variables } = gqlBuilder.mutation(
-            {
-                operation: 'walletCreate',
-                fields: ['id'],
-                variables: {
-                    input: {
-                        value: wallet,
-                        type: 'WalletCreateInput',
-                        required: true,
-                    },
-                },
-            },
-            undefined,
-            {
-                operationName: 'WalletCreate',
-            }
-        );
-
-        try {
-            result = await Api.getInstance().request(query, variables);
-        } catch (error: any) {
-            throw new Error(error.response.errors[0].message);
-        }
-
-        // TODO: refetching is not cool but for now doing to honor NewWallet type
-        return this.findOne({ id: result.walletCreate.id });
+    async create(wallet: WalletCreateInput) {
+        const walletGql = await walletCreate(wallet);
+        return Wallet.build(walletGql);
     }
 
-    async findOne(input: WalletsInput, options: IWalletQueryOptions = {}) {
+    async findOne(input?: WalletsInput, options: IWalletQueryOptions = {}) {
         return this.findAll({ ...input, first: 1 }, options).then(
-            (response: any) => response.results?.[0] ?? null
+            (response: IPaginatedResponse<Wallet>) => response.results?.[0] ?? null
         );
     }
 
     async findAll(input: WalletsInput, options: IWalletQueryOptions = {}) {
-        // TODO: If options.attributes is set... put those keys inside node: [] but validate that they are valid keys
-        const defaultNodeProperties: Array<keyof WalletAttributes> = [
-            'id',
-            'reference',
-            'description',
-            'displayName',
-            'metadata',
-            'transactionsCount',
-            'ledgersCount',
-            'createdAt',
-            'updatedAt',
-        ];
+        const walletsGql = await wallets(input, options);
 
-        const pageInfo: Array<keyof PageInfo> = [
-            'hasNextPage',
-            'hasPreviousPage',
-            'startCursor',
-            'endCursor',
-        ];
-
-        const fields = [
-            {
-                pageInfo,
-            },
-            {
-                edges: [
-                    {
-                        node: options.attributes ?? defaultNodeProperties,
-                    },
-                    'cursor',
-                ],
-            },
-        ];
-
-        const { query, variables } = gqlBuilder.query(
-            {
-                operation: 'wallets',
-                fields,
-                variables: {
-                    input: {
-                        value: { ...input },
-                        type: 'WalletsInput',
-                        required: true,
-                    },
-                },
-            },
-            null,
-            {
-                operationName: 'Wallets',
-            }
-        );
-
-        const data = await Api.getInstance().request(query, variables);
-
-        return <WalletsResponse>{
+        return <IPaginatedResponse<Wallet>>{
             fetchMore: async (fetchMoreInput: WalletsInput = {}) => {
                 // TODO: Clean up how this works
                 if (!fetchMoreInput?.after && !fetchMoreInput?.before) {
-                    fetchMoreInput.after = data.wallets.pageInfo.endCursor;
+                    fetchMoreInput.after = walletsGql?.pageInfo?.endCursor;
                     fetchMoreInput = { ...fetchMoreInput, ...input };
                 }
 
@@ -137,15 +40,8 @@ class Wallets {
                     options
                 );
             },
-            pageInfo: data.wallets.pageInfo,
-            results: Api.getEdges('wallets', data).map(
-                (edge: WalletEdge) =>
-                    new WalletModel({
-                        edge,
-                        originalQuery: query,
-                        originalQueryVariables: variables,
-                    })
-            ),
+            pageInfo: walletsGql?.pageInfo,
+            results: walletsGql?.edges?.map((edge: Maybe<WalletEdge>) => Wallet.build(edge?.node)),
         };
     }
 }
