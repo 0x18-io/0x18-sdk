@@ -255,10 +255,6 @@ export const walletLedgers = async (input: WalletsInput) => {
 
     const walletLedgersGql = result.wallets?.edges?.[0]?.node?.ledgers;
 
-    console.log(JSON.stringify(result, null, 2));
-
-    console.log(JSON.stringify(walletLedgersGql));
-
     return <IPaginatedResponse<Ledger>>{
         fetchMore: async (fetchMoreInput: TransactionsInput = {}) => {
             // TODO: Clean up how this works
