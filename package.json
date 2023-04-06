@@ -33,7 +33,7 @@
         "testscript:transaction-create": "ts-node --project tsconfig.json examples/transactions/create.ts",
         "testscript:transaction-create-bulk": "ts-node --project tsconfig.json examples/transactions/create-bulk.ts",
         "testscript:gql-client": "ts-node --project tsconfig.json examples/gql/gql-test.ts",
-        "release": "build:clean && yarn release-it --preRelease=alpha"
+        "release": "yarn build:clean && yarn release-it --preRelease=alpha"
     },
     "repository": {
         "type": "git",
