@@ -17,7 +17,7 @@
     "scripts": {
         "test": "jest",
         "prepare": "yarn build",
-        "build:clean": "rm -rf dist",
+        "build:clean": "rm -rf dist && yarn build",
         "build": "tsc --project tsconfig.json",
         "testscript:wallet-read": "ts-node --project tsconfig.json examples/wallets/read.ts",
         "testscript:wallet-paginate": "ts-node --project tsconfig.json examples/wallets/paginate.ts",
@@ -33,7 +33,7 @@
         "testscript:transaction-create": "ts-node --project tsconfig.json examples/transactions/create.ts",
         "testscript:transaction-create-bulk": "ts-node --project tsconfig.json examples/transactions/create-bulk.ts",
         "testscript:gql-client": "ts-node --project tsconfig.json examples/gql/gql-test.ts",
-        "release": "release-it --preRelease=alpha"
+        "release": "build:clean && yarn release-it --preRelease=alpha"
     },
     "repository": {
         "type": "git",
