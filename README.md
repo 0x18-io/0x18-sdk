@@ -14,10 +14,10 @@ npm i @official-0x18/sdk
 
 ## Instantiate Client
 
-SDK is configured using your organization API key, that you can find in the hex panel.
+To use SDK client has to be always initialized. It is configured using your organization API key, that you can find in the hex panel.
 
 ```javascript
-const Client = require('@official-0x18/sdk');
+const { Client } = require('@official-0x18/sdk');
 
 const ox = new Client({ apiKey: <org-api-key> });
 ```
@@ -25,7 +25,7 @@ const ox = new Client({ apiKey: <org-api-key> });
 For ES modules
 
 ```javascript
-import Client from '@official-0x18/sdk';
+import { Client } from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <org-api-key> });
 ```
@@ -49,6 +49,8 @@ Main resources that are used in 0x18 ecosystem.
 There are multiple ways to create a ledger
 
 ```javascript
+const { Ledger } = require('@official-0x18/sdk');
+
 // Option 1
 const ledger = await ox.ledgers.create({ suffix: 'SDK', precision: 0 });
 
@@ -115,7 +117,7 @@ await singleNode.archive();
 ### Create
 
 ```javascript
-import Wallet from '@official-0x18/sdk/resources/wallets';
+const { Wallet } = require('@official-0x18/sdk');
 
 // Option 1
 const wallet = await ox.wallets.create({ displayName: 'Hello_from_sdk' });
@@ -181,7 +183,7 @@ await singleNode.archive();
 ### Create
 
 ```javascript
-import Transactions from '@official-0x18/sdk/resources/transactions';
+const { Transaction } = require('@official-0x18/sdk');
 
 // Option 1
 const transaction = await ox.transactions.create({
@@ -214,7 +216,7 @@ const transaction3 = await Transaction.create({
 There is also a way to create multiple transactions in a single method call:
 
 ```javascript
-import Transactions from '@official-0x18/sdk/resources/transactions';
+const { Transaction } = require('@official-0x18/sdk');
 
 const txs = await ox.transactions.bulkCreate([
     {
