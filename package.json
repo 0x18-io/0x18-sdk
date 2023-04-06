@@ -1,5 +1,5 @@
 {
-    "name": "0x18-sdk",
+    "name": "@official-0x18/sdk",
     "version": "0.0.1",
     "description": "Official 0x18-sdk",
     "main": "dist/index.js",
