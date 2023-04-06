@@ -190,6 +190,7 @@ const ox = new Client({ apiKey: <api-key> });
     // Get another wallets page
     ({ results, pageInfo, fetchMore } = await fetchMore());
 })();
+```
 
 ### Update
 
@@ -356,6 +357,7 @@ const transaction = await ox.transactions.findOne();
     await transaction.save()
 
 })();
+```
 
 ### Delete
 
