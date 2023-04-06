@@ -11,7 +11,6 @@ import {
     WalletConnection,
     WalletCreateInput,
     WalletLedger,
-    WalletLedgerConnection,
     WalletLedgerEdge,
     WalletsInput,
     WalletUpdateInput,

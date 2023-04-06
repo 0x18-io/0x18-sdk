@@ -11,8 +11,24 @@
         "esModuleInterop": true,
         "target": "es2022",
         "module": "commonjs",
-        "outDir": "dist"
+        "outDir": "dist",
+        "noEmit": false,
+        "noImplicitAny": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true,
+        // "noPropertyAccessFromIndexSignature": true,
+        "forceConsistentCasingInFileNames": true
     },
+    "files": ["index.ts"],
     "include": ["index.ts", "src"],
     "exclude": ["node_modules", "examples", "__tests__"]
 }

@@ -21,7 +21,7 @@ export interface IWallet extends InferType<typeof walletSchema> {
     ledgers?: Ledger[];
 }
 
-class Wallet implements IModel<IWallet> {
+class Wallet implements IModel {
     #dataValues: any;
     #previousDataValues: any;
     #updatableAttributes: string[];
