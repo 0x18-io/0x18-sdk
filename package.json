@@ -32,7 +32,8 @@
         "testscript:transaction-update": "ts-node --project tsconfig.json examples/transactions/save.ts",
         "testscript:transaction-create": "ts-node --project tsconfig.json examples/transactions/create.ts",
         "testscript:transaction-create-bulk": "ts-node --project tsconfig.json examples/transactions/create-bulk.ts",
-        "testscript:gql-client": "ts-node --project tsconfig.json examples/gql/gql-test.ts"
+        "testscript:gql-client": "ts-node --project tsconfig.json examples/gql/gql-test.ts",
+        "release": "release-it --preRelease=alpha"
     },
     "repository": {
         "type": "git",
