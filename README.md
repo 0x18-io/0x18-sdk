@@ -41,7 +41,7 @@ Main resources that are used in 0x18 ecosystem.
 
 ### Create
 
-There are three ways to create a ledger
+There are multiple ways to create a ledger
 
 ```
 import Client from '0x18';
@@ -50,14 +50,14 @@ import Ledger from '0x18/resources/ledgers';
 const ox = new Client({ apiKey: <api-key> });
 
 (async () => {
-    // 1
+    // Option 1
     const ledger = await ox.ledgers.create({ suffix: 'SDK', precision: 0 });
 
-    // 2
+    // Option 2
     const ledger2 = Ledger.build({ suffix: 'SDK', precision: 0 });
     await ledger2.save();
 
-    // 3
+    // Option 3
     const ledger3 = await Ledger.create({ suffix: 'SDK', precision: 0 });
 })();
 ```
@@ -140,45 +140,251 @@ const ox = new Client({ apiKey: <api-key> });
 
 ### Create
 
-TBD
+```
+import Client from '0x18';
+import Wallet from '0x18/resources/wallets';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // Option 1
+    const wallet = await ox.wallets.create({ displayName: 'Hello_from_sdk' });
+
+    // Option 2
+    const wallet2 = Wallet.build({ displayName: 'Hello_from_sdk' });
+    await wallet2.save();
+
+    // Option 3
+    const wallet3 = await Wallet.create({ displayName: 'Hello_from_sdk' });
+})();
+```
 
 ### Read
 
-TBD
+To get a single wallet:
 
-### Updated
+```
+import Client from '0x18';
 
-TBD
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // A single wallet instance from API
+    const wallet = await ox.wallets.findOne();
+})();
+```
+
+Getting multiple wallets and going through pagination results:
+
+```
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // Gets first wallet page with a single wallet per page
+    let { results, pageInfo, fetchMore } = await ox.wallets.findAll({
+        first: 1,
+    });
+
+    // Get another wallets page
+    ({ results, pageInfo, fetchMore } = await fetchMore());
+})();
+
+### Update
+
+Before updating a wallet we need to have it's instance:
+
+```
+
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+// Get a single wallet instance
+const wallet = await ox.wallets.findOne();
+
+    // Update wallet property
+    wallet.metadata['today'] = new Date().toISOString();
+
+    // Commit wallet updates to API
+    await wallet.save()
+
+})();
+
+```
 
 ### Delete
 
-TBD
+Before deleting a wallet we need to have it's instance:
+
+```
+
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+// Get a single wallet instance
+const wallet = await ox.wallets.findOne();
+
+    // Archives a given wallet instance
+    await singleNode.archive()
+
+})();
+
+```
 
 ## Transactions
 
 ### Create
 
-TBD
+```
+import Client from '0x18';
+import Transactions from '0x18/resources/transactions';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // Option 1
+    const transaction = await ox.transactions.create({
+        amount: '100',
+        ledgerId: '0xfABDD4....', // Ledger id
+        walletId: '0xDF39Aa....', // Wallet id
+        method: Transaction.METHODS.MINT,
+    });
+
+    // Option 2
+    const transaction2 = Transaction.build({
+        amount: '100',
+        ledgerId: '0xfABDD4....', // Ledger id
+        walletId: '0xDF39Aa....', // Wallet id
+        method: Transaction.METHODS.MINT,
+    });
+    await transaction2.save();
+
+    // Option 3
+    const transaction3 = await Transaction.create({
+        amount: '100',
+        ledgerId: '0xfABDD4....', // Ledger id
+        walletId: '0xDF39Aa....', // Wallet id
+        method: Transaction.METHODS.MINT,
+    });
+})();
+```
 
 ### Create bulk
 
-TBD
+There is also a way to create multiple transactions in a single method call:
+
+```
+import Client from '0x18';
+import Transactions from '0x18/resources/transactions';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    const txs = await ox.transactions.bulkCreate([
+        {
+            amount: '100',
+            ledgerId: '0xfABDD4....', // Ledger id
+            walletId: '0xDF39Aa....', // Wallet id
+            method: Transaction.METHODS.MINT,
+        },
+        {
+            amount: '100',
+            ledgerId: '0xfABDD4....', // Ledger id
+            walletId: '0xDF39Aa....', // Wallet id
+            method: Transaction.METHODS.BURN,
+        },
+    ]);
+})();
+```
 
 ### Read
 
-TBD
+To get a single transaction:
 
-### Updated
+```
+import Client from '0x18';
 
-TBD
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // A single transaction instance from API
+    const transaction = await ox.transactions.findOne();
+})();
+```
+
+Getting multiple transactions and going through pagination results:
+
+```
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // Gets first transaction page with a single transaction per page
+    let { results, pageInfo, fetchMore } = await ox.transactions.findAll({
+        first: 1,
+    });
+
+    // Get another transaction page
+    ({ results, pageInfo, fetchMore } = await fetchMore());
+})();
+
+
+### Update
+
+Before updating a transaction we need to have it's instance:
+
+```
+
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+// Get a single transaction instance
+const transaction = await ox.transactions.findOne();
+
+    // Update transaction property
+    transaction.reference = 'Hello from SDK';
+
+    // Commit transaction updates to API
+    await transaction.save()
+
+})();
 
 ### Delete
 
-TBD
+Once transactions are committed, they cannot be archived.
 
 ## Accessing nested resources
 
-TBD
+Some resources have nested resources available. They can be reached using getters.
+
+Most of the resources should come paginated.
+
+For example this is how you can get wallet ledgers:
+
+```
+import Client from '0x18';
+
+const ox = new Client({ apiKey: <api-key> });
+
+(async () => {
+    // First let's get a single wallet
+    const wallet = await ox.wallets.findOne();
+
+    // Then let's get it's ledgers
+    await wallet.getLedgers()
+
+    // After this is done we can access wallet related ledgers
+    console.log(wallet.ledgers?.results)
+})();
+```
 
 ## Links
 
