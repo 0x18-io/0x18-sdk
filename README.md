@@ -333,7 +333,7 @@ const ox = new Client({ apiKey: <api-key> });
     // Get another transaction page
     ({ results, pageInfo, fetchMore } = await fetchMore());
 })();
-
+```
 
 ### Update
 
