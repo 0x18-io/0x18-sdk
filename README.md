@@ -11,9 +11,9 @@ More documentation about specific features can be found in official documentatio
 Install package with:
 
 ```
-npm install 0x18
+npm i @official-0x18/sdk
 #or
-yarn add 0x18
+npm add @official-0x18/sdk
 ```
 
 ## Usage
