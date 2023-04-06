@@ -17,13 +17,14 @@ const ox = new Client({
         }
     );
 
+    console.log(pageInfo);
     const singleNode = results[0];
-    await singleNode.getLedgers();
+    await singleNode?.getLedgers();
 
-    console.log(singleNode.id);
-    console.log(singleNode.description);
-    console.log(singleNode.displayName);
-    console.log(singleNode.reference);
-    console.log(singleNode.ledgers?.results[0]);
-    console.log(singleNode.ledgers?.results[0].balance?.toString());
+    console.log(singleNode?.id);
+    console.log(singleNode?.description);
+    console.log(singleNode?.displayName);
+    console.log(singleNode?.reference);
+    console.log(singleNode?.ledgers?.results[0]);
+    console.log(singleNode?.ledgers);
 })();
