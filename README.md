@@ -21,7 +21,7 @@ yarn add 0x18
 SDK is configured using your organization API key, that you can find in the hex panel.
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <org-api-key> });
 ```
@@ -44,7 +44,7 @@ Main resources that are used in 0x18 ecosystem.
 There are multiple ways to create a ledger
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 import Ledger from '0x18/resources/ledgers';
 
 const ox = new Client({ apiKey: <api-key> });
@@ -69,7 +69,7 @@ All of these lead to the same result.
 To get a single ledger:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -82,7 +82,7 @@ const ox = new Client({ apiKey: <api-key> });
 Getting multiple ledgers and going through pagination results:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -102,7 +102,7 @@ const ox = new Client({ apiKey: <api-key> });
 Before updating a ledger we need to have it's instance:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -123,7 +123,7 @@ const ox = new Client({ apiKey: <api-key> });
 Before deleting a ledger we need to have it's instance:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -141,7 +141,7 @@ const ox = new Client({ apiKey: <api-key> });
 ### Create
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 import Wallet from '0x18/resources/wallets';
 
 const ox = new Client({ apiKey: <api-key> });
@@ -164,7 +164,7 @@ const ox = new Client({ apiKey: <api-key> });
 To get a single wallet:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -177,7 +177,7 @@ const ox = new Client({ apiKey: <api-key> });
 Getting multiple wallets and going through pagination results:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -198,7 +198,7 @@ Before updating a wallet we need to have it's instance:
 
 ```
 
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -222,7 +222,7 @@ Before deleting a wallet we need to have it's instance:
 
 ```
 
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -242,7 +242,7 @@ const wallet = await ox.wallets.findOne();
 ### Create
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 import Transactions from '0x18/resources/transactions';
 
 const ox = new Client({ apiKey: <api-key> });
@@ -280,7 +280,7 @@ const ox = new Client({ apiKey: <api-key> });
 There is also a way to create multiple transactions in a single method call:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 import Transactions from '0x18/resources/transactions';
 
 const ox = new Client({ apiKey: <api-key> });
@@ -308,7 +308,7 @@ const ox = new Client({ apiKey: <api-key> });
 To get a single transaction:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -321,7 +321,7 @@ const ox = new Client({ apiKey: <api-key> });
 Getting multiple transactions and going through pagination results:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -342,7 +342,7 @@ Before updating a transaction we need to have it's instance:
 
 ```
 
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -372,7 +372,7 @@ Most of the resources should come paginated.
 For example this is how you can get wallet ledgers:
 
 ```
-import Client from '0x18';
+import Client from '@official-0x18/sdk';
 
 const ox = new Client({ apiKey: <api-key> });
 
