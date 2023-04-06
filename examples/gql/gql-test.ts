@@ -1,8 +1,6 @@
-import Client from '../..';
+import { Client } from '../..';
 // @ts-ignore
 import process from 'node:process';
-import Ledger from '../../src/resources/ledgers';
-import GqlClient from '../../src/resources/gql-client';
 
 const ox = new Client({
     host: 'https://qa--official0x18.apollographos.net',

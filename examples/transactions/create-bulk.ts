@@ -1,7 +1,6 @@
-import Client from '../..';
+import { Client, Transaction } from '../..';
 // @ts-ignore
 import process from 'node:process';
-import Transaction from '../../src/resources/transactions';
 
 const ox = new Client({
     host: 'https://qa--official0x18.apollographos.net',
