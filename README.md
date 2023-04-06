@@ -36,7 +36,7 @@ Client options:
 | host | https://api.0x18.io | ❌ | API endpoint that is called by the client |
 | numberOfApiCallRetries | 0 | ❌ | Number of retries, that retry mechanism should try to call API, before failing the response |
 | apiKeyPromise | - | ❌ | Promise which after resolved should return api-key. For example AWS secrets manager getter. |
-| apiKey | - | ✅ | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If apiKeyPromise is provided, it's not required |
+| apiKey | - | ✅ | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If `apiKeyPromise` is provided, it's not required |
 
 ## Resources
 
@@ -301,17 +301,19 @@ Example:
 
 ```javascript
 await ox.gqlClient.request(
-    `query Transactions ($input: TransactionsGetInput!)
-            { transactions (input: $input) {
-                pageInfo {
-                    hasNextPage, hasPreviousPage, startCursor, endCursor
+    `query Transactions ($input: TransactionsGetInput!) {
+        transactions (input: $input) {
+            pageInfo {
+                hasNextPage, hasPreviousPage, startCursor, endCursor
+            },
+            edges {
+                node {
+                    amount, balance, createdAt, description, errors, hash, id, identity, metadata, method
                 },
-                edges {
-                    node {
-                        amount, balance, createdAt, description, errors, hash, id, identity, metadata, method, reference, status, tags, updatedAt}, cursor
-                    }
-                }
-            }`,
+                cursor
+            }
+        }
+    }`,
     {
         input: {
             first: 2,
