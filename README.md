@@ -45,7 +45,7 @@ There are multiple ways to create a ledger
 
 ```
 import Client from '@official-0x18/sdk';
-import Ledger from '0x18/resources/ledgers';
+import Ledger from '@official-0x18/sdk/resources/ledgers';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -142,7 +142,7 @@ const ox = new Client({ apiKey: <api-key> });
 
 ```
 import Client from '@official-0x18/sdk';
-import Wallet from '0x18/resources/wallets';
+import Wallet from '@official-0x18/sdk/resources/wallets';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -243,7 +243,7 @@ const wallet = await ox.wallets.findOne();
 
 ```
 import Client from '@official-0x18/sdk';
-import Transactions from '0x18/resources/transactions';
+import Transactions from '@official-0x18/sdk/resources/transactions';
 
 const ox = new Client({ apiKey: <api-key> });
 
@@ -281,7 +281,7 @@ There is also a way to create multiple transactions in a single method call:
 
 ```
 import Client from '@official-0x18/sdk';
-import Transactions from '0x18/resources/transactions';
+import Transactions from '@official-0x18/sdk/resources/transactions';
 
 const ox = new Client({ apiKey: <api-key> });
 
