@@ -44,7 +44,7 @@ class ApiDecoratorService {
         } catch (e) {
             const updatedCount = retriesCount + 1;
             if (updatedCount > retries) {
-                return null;
+                throw e;
             }
             await sleep(everyMs);
             return await this.#requestWithRetry(requestPromise, { retries, everyMs }, updatedCount);
@@ -69,13 +69,6 @@ class ApiDecoratorService {
                     : 0,
             });
         } catch (error: any) {
-            if (
-                error.response.status === 500 &&
-                error.response.errors[0].message.includes('invalid hexlify value')
-            ) {
-                throw new Error('Invalid API key');
-            }
-
             return Promise.reject(error);
         }
     }
