@@ -248,10 +248,12 @@ export type TransactionCreateInput = {
 
 export type TransactionCreateItem = {
     amount: Scalars['NonEmptyString'];
+    description?: InputMaybe<Scalars['String']>;
     idempotencyKey?: InputMaybe<Scalars['NonEmptyString']>;
     ledgerId: Scalars['NonEmptyString'];
     metadata?: InputMaybe<Scalars['JSON']>;
     method: TransactionMethods;
+    reference?: InputMaybe<Scalars['String']>;
     walletId: Scalars['NonEmptyString'];
 };
 
@@ -269,12 +271,14 @@ export type TransactionItem = {
     amount: Scalars['String'];
     balance?: Maybe<Scalars['String']>;
     createdAt?: Maybe<Scalars['Date']>;
+    description?: Maybe<Scalars['String']>;
     errors?: Maybe<Array<Maybe<Scalars['String']>>>;
     id?: Maybe<Scalars['ID']>;
     idempotencyKey?: Maybe<Scalars['String']>;
     ledgerId: Scalars['String'];
     metadata?: Maybe<Scalars['JSON']>;
     method: TransactionMethods;
+    reference?: Maybe<Scalars['String']>;
     status: TransactionStatus;
     tags?: Maybe<Array<Maybe<Scalars['String']>>>;
     walletId: Scalars['String'];
