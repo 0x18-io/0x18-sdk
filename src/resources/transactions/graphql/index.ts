@@ -42,6 +42,8 @@ export const transactionCreate = async (
         'method',
         'status',
         'tags',
+        'description',
+        'reference',
     ];
 
     const { query, variables } = gqlBuilder.mutation(
