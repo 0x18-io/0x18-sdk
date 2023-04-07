@@ -12,7 +12,7 @@ More documentation about specific features can be found in official documentatio
 npm i @official-0x18/sdk
 ```
 
-# Usage 
+# Usage
 
 To use SDK client has to be always initialized. It is configured using your organization API key, that you can find in the hex panel.
 
@@ -36,7 +36,7 @@ Client options:
 |------------------------|---------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------|
 | host                   | https://api.0x18.io | ❌        | API endpoint that is called by the client                                                                                             |
 | numberOfApiCallRetries | 0                   | ❌        | Number of retries, that retry mechanism should try to call API, before failing the response                                           |
-| apiKey                 | -                   | ✅        | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If a `promise` is provided it will resolve to get key |
+| apiKey                 | -                   | ✅        | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If a function that returns a `promise` is provided it will resolve to get key |
 
 ## Resource methods
 We will show some examples with ledgers for reference but wallets and transactions work the same way.
@@ -71,7 +71,7 @@ Although a model is a class, you should not create instances by using the `new` 
 const { Ledger } = require('@official-0x18/sdk');
 
 const ledger = Ledger.build({ displayName: 'Hello_from_sdk' });
-console.log(ledger instanceof ledger); // true
+console.log(ledger instanceof Ledger); // true
 console.log(ledger.displayName); // "Hello_from_sdk"
 ```
 
@@ -139,7 +139,7 @@ Collection name is `ledgers`.
 
 | Method  | Description          |
 |---------|----------------------|
-| create  | Creates a new ledger | 
+| create  | Creates a new ledger |
 | findAll | Gets all ledgers     |
 | findOne | Gets a single ledger |
 
@@ -169,7 +169,7 @@ Collection name is `wallets`.
 
 | Method  | Description          |
 |---------|----------------------|
-| create  | Creates a new wallet | 
+| create  | Creates a new wallet |
 | findAll | Gets all wallets     |
 | findOne | Gets a single wallet |
 
@@ -198,7 +198,7 @@ Collection name is `transactions`.
 
 | Method  | Description               |
 |---------|---------------------------|
-| create  | Creates a new transaction | 
+| create  | Creates a new transaction |
 | findAll | Gets all transactions     |
 | findOne | Gets a single transaction |
 
@@ -215,9 +215,9 @@ Collection name is `transactions`.
 | Property       | Required | Updatable | Description                                                       |
 |----------------|----------|-----------|-------------------------------------------------------------------|
 | method         | ✅        | ❌         | `mint` or `burn`                                                  |
-| ledgerId       | ✅        | ❌         | The ledger id                                                     | 
-| walletId       | ✅        | ❌         | The wallet id                                                     | 
-| amount         | ✅        | ❌         | The amount of tokens to mint or burn                              | 
+| ledgerId       | ✅        | ❌         | The ledger id                                                     |
+| walletId       | ✅        | ❌         | The wallet id                                                     |
+| amount         | ✅        | ❌         | The amount of tokens to mint or burn                              |
 | idempotencyKey | ❌        | ❌         | Used to prevent duplicates                                        |
 | metadata       | ❌        | ✅         | transaction metadata - JSONable                                   |
 | reference      | ❌        | ✅         | Used for your application to identify a transaction in our system |
