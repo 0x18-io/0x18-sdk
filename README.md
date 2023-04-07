@@ -2,17 +2,17 @@
 
 0x18 SDK library provides a convenient way to work with 0x18 API.
 
-## Documentation
+# Documentation
 
 More documentation about specific features can be found in official documentation page [here](https://docs.0x18.io/).
 
-## Installing
+# Installing
 
 ```
 npm i @official-0x18/sdk
 ```
 
-## Instantiate Client
+# Usage 
 
 To use SDK client has to be always initialized. It is configured using your organization API key, that you can find in the hex panel.
 
@@ -31,49 +31,92 @@ const ox = new Client({ apiKey: <org-api-key> });
 ```
 
 Client options:
-| Option | Default value| Required | Description |
-| ---- | ---- | ---- | ---- |
-| host | https://api.0x18.io | ❌ | API endpoint that is called by the client |
-| numberOfApiCallRetries | 0 | ❌ | Number of retries, that retry mechanism should try to call API, before failing the response |
-| apiKeyPromise | - | ❌ | Promise which after resolved should return api-key. For example AWS secrets manager getter. |
-| apiKey | - | ✅ | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If `apiKeyPromise` is provided, it's not required |
 
-## Resources
+| Option                 | Default value       | Required | Description                                                                                                                           |
+|------------------------|---------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------|
+| host                   | https://api.0x18.io | ❌        | API endpoint that is called by the client                                                                                             |
+| numberOfApiCallRetries | 0                   | ❌        | Number of retries, that retry mechanism should try to call API, before failing the response                                           |
+| apiKey                 | -                   | ✅        | Api Key from the [hex panel](https://hex.0x18.io/org/keys) for your organization. If a `promise` is provided it will resolve to get key |
 
-Main resources that are used in 0x18 ecosystem.
+## Resource methods
+We will show some examples with ledgers for reference but wallets and transactions work the same way.
 
-### Ledgers
+### findAll
+See [pagination](#pagination) section for more details.
 
-### Create
+```javascript
+// Gets first ledger page with a single ledger per page
+let { results, pageInfo, fetchMore } = await ox.ledgers.findAll({
+    first: 1,
+});
+````
 
-There are multiple ways to create a ledger
+### findOne
+
+```javascript
+const ledger = await ox.ledgers.findOne({ id: '0xfABDD4....' });
+```
+
+
+### Create - Through the collection resource
+
+```javascript
+const wallet = await ox.ledgers.create({ displayName: 'Hello_from_sdk' });
+```
+
+### Creating an instance - Direct
+Although a model is a class, you should not create instances by using the `new` operator directly. Instead, the `build` method should be used:
 
 ```javascript
 const { Ledger } = require('@official-0x18/sdk');
 
-// Option 1
-const ledger = await ox.ledgers.create({ suffix: 'SDK', precision: 0 });
-
-// Option 2
-const ledger2 = Ledger.build({ suffix: 'SDK', precision: 0 });
-await ledger2.save();
-
-// Option 3
-const ledger3 = await Ledger.create({ suffix: 'SDK', precision: 0 });
+const ledger = Ledger.build({ displayName: 'Hello_from_sdk' });
+console.log(ledger instanceof ledger); // true
+console.log(ledger.displayName); // "Hello_from_sdk"
 ```
 
-All of these lead to the same result.
-
-### Read
-
-To get a single ledger:
+However, the code above does not communicate with the API at all (note that it is not even asynchronous)! This is because the `build` method only creates an object that _represents_ data that _can_ be mapped to the API. In order to really save (i.e. persist) this instance in the API, the save method should be `used`:
 
 ```javascript
-// A single ledger instance from API
-const ledger = await ox.ledgers.findOne();
+await ledger.save();
+console.log('ledger was saved!');
 ```
 
-Getting multiple ledgers and going through pagination results:
+Note, from the usage of `await` in the snippet above, that `save` is an asynchronous method. In fact, almost every method is asynchronous; `build` is one of the very few exceptions.
+
+### A very useful shortcut: the create method - Direct
+Here is the `create` method, which combines the `build` and `save` methods shown above into a single method:
+
+```javascript
+const { Ledger } = require('@official-0x18/sdk');
+
+const ledger = await Ledger.create({ displayName: 'Hello_from_sdk' });
+// Hello_from_sdk exists in the API now!
+console.log(ledger instanceof Ledger); // true
+console.log(ledger.displayName); // "Hello_from_sdk"
+```
+
+### Accessing nested resources
+
+Some resources have nested resources available. They can be reached using getters.  Most of the resources should come paginated.
+
+For example this is how you can get ledgers attached to a wallet with a non zero balance:
+
+```javascript
+// First let's get a single wallet
+const wallet = await ox.wallets.findOne();
+
+await wallet.getLedgers();
+// now wallet.ledgers is populated with paginated results
+
+console.log(wallet.ledgers?.results);
+```
+
+### Pagination
+
+All `findAll` methods return `results`, `pageInfo` and `fetchMore` properties. `results` is an array of results, `pageInfo` contains information about current page and `fetchMore` is a function that can be called to get the next page.
+
+Each result is an instance of a model. For example, `results` in `findAll` for ledgers will be an array of `Ledger` instances.
 
 ```javascript
 // Gets first ledger page with a single ledger per page
@@ -84,214 +127,105 @@ let { results, pageInfo, fetchMore } = await ox.ledgers.findAll({
 // Get another ledgers page
 ({ results, pageInfo, fetchMore } = await fetchMore());
 ```
+&nbsp;
 
-### Update
+---
 
-Before updating a ledger we need to have it's instance:
+## Ledgers
 
-```javascript
-// Get a single ledger instance
-const ledger = await ox.ledgers.findOne();
+Collection name is `ledgers`.
 
-// Update ledger property
-ledger.description = 'HELLO FROM SDK';
+### Collection Methods
 
-// Commit ledger updates to API
-await ledger.save();
-```
+| Method  | Description          |
+|---------|----------------------|
+| create  | Creates a new ledger | 
+| findAll | Gets all ledgers     |
+| findOne | Gets a single ledger |
 
-### Delete
+### Instance Methods
 
-Before deleting a ledger we need to have it's instance:
+| Method  | Description                       |
+|---------|-----------------------------------|
+| archive | Archives a ledger                 |
+| save    | Saves a ledger after modification |
 
-```javascript
-// Get a single ledger instance
-const ledger = await ox.ledgers.findOne();
+### Instance Properties
 
-// Archives a given ledger instance
-await singleNode.archive();
-```
+| Property    | Required | Updatable | Description                                                  |
+|-------------|----------|-----------|--------------------------------------------------------------|
+| suffix      | ✅        | ✅         | Ledger suffix                                                |
+| precision   | ✅        | ✅         | Ledger precision                                             |
+| displayName | ❌        | ✅         | Ledger display name                                          |
+| description | ❌        | ✅         | Ledger description                                           |
+| reference   | ❌        | ✅         | Used for your application to identify a ledger in our system |
+
 
 ## Wallets
 
-### Create
+Collection name is `wallets`.
 
-```javascript
-const { Wallet } = require('@official-0x18/sdk');
+### Collection Methods
 
-// Option 1
-const wallet = await ox.wallets.create({ displayName: 'Hello_from_sdk' });
+| Method  | Description          |
+|---------|----------------------|
+| create  | Creates a new wallet | 
+| findAll | Gets all wallets     |
+| findOne | Gets a single wallet |
 
-// Option 2
-const wallet2 = Wallet.build({ displayName: 'Hello_from_sdk' });
-await wallet2.save();
 
-// Option 3
-const wallet3 = await Wallet.create({ displayName: 'Hello_from_sdk' });
-```
+### Instance Methods
 
-### Read
+| Method  | Description                       |
+|---------|-----------------------------------|
+| archive | Archives a wallet                 |
+| save    | Saves a wallet after modification |
 
-To get a single wallet:
+### Creatable Instance Properties
 
-```javascript
-// A single wallet instance from API
-const wallet = await ox.wallets.findOne();
-```
+| Property    | Required | Updatable | Description                                                  |
+|-------------|----------|-----------|--------------------------------------------------------------|
+| displayName | ❌        | ✅         | wallet display name                                          |
+| metadata    | ❌        | ✅         | wallet metadata - JSONable                                   |
+| reference   | ❌        | ✅         | Used for your application to identify a wallet in our system |
 
-Getting multiple wallets and going through pagination results:
-
-```javascript
-// Gets first wallet page with a single wallet per page
-let { results, pageInfo, fetchMore } = await ox.wallets.findAll({
-    first: 1,
-});
-
-// Get another wallets page
-({ results, pageInfo, fetchMore } = await fetchMore());
-```
-
-### Update
-
-Before updating a wallet we need to have it's instance:
-
-```javascript
-// Get a single wallet instance
-const wallet = await ox.wallets.findOne();
-
-// Update wallet property
-wallet.metadata['today'] = new Date().toISOString();
-
-// Commit wallet updates to API
-await wallet.save();
-```
-
-### Delete
-
-Before deleting a wallet we need to have it's instance:
-
-```javascript
-// Get a single wallet instance
-const wallet = await ox.wallets.findOne();
-
-// Archives a given wallet instance
-await singleNode.archive();
-```
 
 ## Transactions
 
-### Create
+Collection name is `transactions`.
 
-```javascript
-const { Transaction } = require('@official-0x18/sdk');
+### Collection Methods
 
-// Option 1
-const transaction = await ox.transactions.create({
-    amount: '100',
-    ledgerId: '0xfABDD4....', // Ledger id
-    walletId: '0xDF39Aa....', // Wallet id
-    method: Transaction.METHODS.MINT,
-});
+| Method  | Description               |
+|---------|---------------------------|
+| create  | Creates a new transaction | 
+| findAll | Gets all transactions     |
+| findOne | Gets a single transaction |
 
-// Option 2
-const transaction2 = Transaction.build({
-    amount: '100',
-    ledgerId: '0xfABDD4....', // Ledger id
-    walletId: '0xDF39Aa....', // Wallet id
-    method: Transaction.METHODS.MINT,
-});
-await transaction2.save();
 
-// Option 3
-const transaction3 = await Transaction.create({
-    amount: '100',
-    ledgerId: '0xfABDD4....', // Ledger id
-    walletId: '0xDF39Aa....', // Wallet id
-    method: Transaction.METHODS.MINT,
-});
-```
+### Instance Methods
 
-### Create bulk
+| Method  | Description                                 |
+|---------|---------------------------------------------|
+| save    | Saves a transaction after its been modified |
 
-There is also a way to create multiple transactions in a single method call:
 
-```javascript
-const { Transaction } = require('@official-0x18/sdk');
+### Creatable Instance Properties
 
-const txs = await ox.transactions.bulkCreate([
-    {
-        amount: '100',
-        ledgerId: '0xfABDD4....', // Ledger id
-        walletId: '0xDF39Aa....', // Wallet id
-        method: Transaction.METHODS.MINT,
-    },
-    {
-        amount: '100',
-        ledgerId: '0xfABDD4....', // Ledger id
-        walletId: '0xDF39Aa....', // Wallet id
-        method: Transaction.METHODS.BURN,
-    },
-]);
-```
-
-### Read
-
-To get a single transaction:
-
-```javascript
-// A single transaction instance from API
-const transaction = await ox.transactions.findOne();
-```
-
-Getting multiple transactions and going through pagination results:
-
-```javascript
-// Gets first transaction page with a single transaction per page
-let { results, pageInfo, fetchMore } = await ox.transactions.findAll({
-    first: 1,
-});
-
-// Get another transaction page
-({ results, pageInfo, fetchMore } = await fetchMore());
-```
-
-### Update
-
-Before updating a transaction we need to have it's instance:
-
-```javascript
-// Get a single transaction instance
-const transaction = await ox.transactions.findOne();
-
-// Update transaction property
-transaction.reference = 'Hello from SDK';
-
-// Commit transaction updates to API
-await transaction.save();
-```
+| Property       | Required | Updatable | Description                                                       |
+|----------------|----------|-----------|-------------------------------------------------------------------|
+| method         | ✅        | ❌         | `mint` or `burn`                                                  |
+| ledgerId       | ✅        | ❌         | The ledger id                                                     | 
+| walletId       | ✅        | ❌         | The wallet id                                                     | 
+| amount         | ✅        | ❌         | The amount of tokens to mint or burn                              | 
+| idempotencyKey | ❌        | ❌         | Used to prevent duplicates                                        |
+| metadata       | ❌        | ✅         | transaction metadata - JSONable                                   |
+| reference      | ❌        | ✅         | Used for your application to identify a transaction in our system |
 
 ### Delete
 
 Once transactions are committed, they cannot be archived.
 
-## Accessing nested resources
-
-Some resources have nested resources available. They can be reached using getters.
-
-Most of the resources should come paginated.
-
-For example this is how you can get wallet ledgers:
-
-```javascript
-// First let's get a single wallet
-const wallet = await ox.wallets.findOne();
-
-// Then let's get it's ledgers
-await wallet.getLedgers();
-
-// After this is done we can access wallet related ledgers
-console.log(wallet.ledgers?.results);
-```
 
 ## Graphql Client
 

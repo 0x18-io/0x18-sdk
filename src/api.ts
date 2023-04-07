@@ -1,6 +1,7 @@
 import { GraphQLClient, RequestDocument, Variables } from 'graphql-request';
 import IConfiguration from './configuration/IConfiguration';
 import sleep from './utils/sleep';
+import isPromise from './utils/isPromise';
 
 class ApiDecoratorService {
     private static instance: ApiDecoratorService;
@@ -25,8 +26,13 @@ class ApiDecoratorService {
     }
 
     async #apiKeyMiddleware(request: RequestInit) {
+        let token = '';
+
         // @ts-ignore
-        const token = await this.config.apiKeyPromise();
+        if (isPromise(this?.config?.apiKey())) {
+            // @ts-ignore
+            token = await this.config.apiKey();
+        }
 
         return {
             ...request,
@@ -79,13 +85,12 @@ class ApiDecoratorService {
         }
 
         if (!this._client) {
-            const clientOptions = {
-                headers: {
-                    Authorization: `custom ${this.config.apiKey}`,
-                },
-            };
+            const clientOptions = { headers: {} };
 
-            if (this.config.apiKeyPromise) {
+            if (typeof this.config.apiKey === 'string') {
+                // @ts-ignore
+                clientOptions.headers.Authorization = `custom ${this.config.apiKey}`;
+            } else if (typeof this.config.apiKey === 'function') {
                 // @ts-ignore
                 clientOptions.requestMiddleware = this.#apiKeyMiddleware;
             }
