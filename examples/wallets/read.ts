@@ -4,7 +4,7 @@ import process from 'node:process';
 
 const ox = new Client({
     host: 'https://qa--official0x18.apollographos.net',
-    apiKey: `${process.env.OX_API_KEY}`,
+    apiKey: (): Promise<string> => new Promise((resolve) => resolve(`${process.env.OX_API_KEY}`)),
 });
 
 (async () => {

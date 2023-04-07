@@ -5,6 +5,7 @@ import graphqlClient from './api';
 import Ledgers from './resources/ledgers/models/ledgers';
 import Transactions from './resources/transactions/models/transactions';
 import GqlClient from './resources/gql-client';
+import isPromise from './utils/isPromise';
 
 class Client {
     public config: IConfiguration;
@@ -19,6 +20,18 @@ class Client {
             host: 'https://api.0x18.io',
             numberOfApiCallRetries: 0,
         };
+
+        if (config.apiKey) {
+            if (
+                !(typeof config.apiKey === 'function' && isPromise(config.apiKey())) &&
+                typeof config.apiKey !== 'string'
+            ) {
+                throw new Error(
+                    'Client apiKey must be of type string or a function that returns a promise'
+                );
+            }
+        }
+
         this.config = { ...defaultOptions, ...config };
         this.init();
     }

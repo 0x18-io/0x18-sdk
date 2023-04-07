@@ -6,7 +6,7 @@
  * @returns {Boolean}
  */
 function isPromise(promise: any) {
-    return !!promise && typeof promise.then === 'function';
+    return !!promise && typeof promise === 'object' && typeof promise.then === 'function';
 }
 
 export default isPromise;

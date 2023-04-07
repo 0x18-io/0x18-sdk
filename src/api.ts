@@ -90,9 +90,12 @@ class ApiDecoratorService {
             if (typeof this.config.apiKey === 'string') {
                 // @ts-ignore
                 clientOptions.headers.Authorization = `custom ${this.config.apiKey}`;
-            } else if (typeof this.config.apiKey === 'function') {
+            } else if (
+                typeof this.config.apiKey === 'function' &&
+                isPromise(this?.config?.apiKey())
+            ) {
                 // @ts-ignore
-                clientOptions.requestMiddleware = this.#apiKeyMiddleware;
+                clientOptions.requestMiddleware = this.#apiKeyMiddleware.bind(this);
             }
 
             this._client = new GraphQLClient(`${this.config.host}/graphql`, clientOptions);
