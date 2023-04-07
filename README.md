@@ -62,7 +62,7 @@ const ledger = await ox.ledgers.findOne({ id: '0xfABDD4....' });
 ### Create - Through the collection resource
 
 ```javascript
-const wallet = await ox.ledgers.create({ displayName: 'Hello_from_sdk' });
+const wallet = await ox.ledgers.create({ displayName: 'HelloWorld!' });
 ```
 
 ### Creating an instance - Direct
@@ -72,9 +72,9 @@ Although a model is a class, you should not create instances by using the `new` 
 ```javascript
 const { Ledger } = require('@official-0x18/sdk');
 
-const ledger = Ledger.build({ displayName: 'Hello_from_sdk' });
+const ledger = Ledger.build({ displayName: 'HelloWorld!' });
 console.log(ledger instanceof Ledger); // true
-console.log(ledger.displayName); // "Hello_from_sdk"
+console.log(ledger.displayName); // "HelloWorld!"
 ```
 
 However, the code above does not communicate with the API at all (note that it is not even asynchronous)! This is because the `build` method only creates an object that _represents_ data that _can_ be mapped to the API. In order to really save (i.e. persist) this instance in the API, the `save` method should be `used`:
@@ -93,10 +93,10 @@ Here is the `create` method, which combines the `build` and `save` methods shown
 ```javascript
 const { Ledger } = require('@official-0x18/sdk');
 
-const ledger = await Ledger.create({ displayName: 'Hello_from_sdk' });
-// Hello_from_sdk exists in the API now!
+const ledger = await Ledger.create({ displayName: 'HelloWorld!' });
+// HelloWorld! exists in the API now!
 console.log(ledger instanceof Ledger); // true
-console.log(ledger.displayName); // "Hello_from_sdk"
+console.log(ledger.displayName); // "HelloWorld!"
 ```
 
 ### Accessing nested resources
