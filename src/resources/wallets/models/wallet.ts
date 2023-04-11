@@ -3,7 +3,7 @@ import Semaphore from 'semaphore-async-await';
 import { date, number, object, string, InferType } from 'yup';
 import { IModel, IPaginatedResponse } from '../../interfaces';
 import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
-import Ledger from '../../ledgers';
+import { Ledger } from '../../ledgers';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -21,7 +21,7 @@ export interface IWallet extends InferType<typeof walletSchema> {
     ledgers?: Ledger[];
 }
 
-class Wallet implements IModel {
+export class Wallet implements IModel {
     #dataValues: any;
     #previousDataValues: any;
     #updatableAttributes: string[];
@@ -132,5 +132,3 @@ class Wallet implements IModel {
         return this.#dataValues.ledgers;
     }
 }
-
-export default Wallet;

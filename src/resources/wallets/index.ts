@@ -1,3 +1,1 @@
-import Wallet from './models/wallet';
-
-export default Wallet;
+export { Wallet } from './models/wallet';

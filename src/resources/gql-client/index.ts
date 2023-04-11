@@ -1,7 +1,7 @@
 import { RequestDocument, Variables } from 'graphql-request';
 import Api from '../../api';
 
-export default class GqlClient {
+export class GqlClient {
     public async request(query: RequestDocument, variables?: Variables): Promise<any> {
         let result;
 

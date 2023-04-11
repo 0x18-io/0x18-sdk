@@ -6,7 +6,7 @@ import {
     TransactionsSearchEdge,
     Maybe,
 } from '../../../gql-types';
-import Transaction from './transaction';
+import { Transaction } from './transaction';
 import {
     ITransactionCreateOptions,
     ITransactionQueryOptions,
@@ -15,7 +15,7 @@ import {
 } from '../graphql';
 import { IPaginatedResponse } from '../../interfaces';
 
-class Transactions {
+export class Transactions {
     public config: IConfiguration;
 
     constructor(config: IConfiguration = {}) {
@@ -69,5 +69,3 @@ class Transactions {
         };
     }
 }
-
-export default Transactions;

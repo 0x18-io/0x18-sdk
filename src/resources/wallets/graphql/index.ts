@@ -17,7 +17,7 @@ import {
 } from '../../../gql-types';
 import { PageInfoFields } from '../../constants';
 import { IPaginatedResponse } from '../../interfaces';
-import Ledger from '../../ledgers';
+import { Ledger } from '../../ledgers';
 
 // For now we omit nested resources
 type WalletAttributes = Omit<Omit<Omit<Wallet, 'ledgers'>, 'auditTrail'>, 'transactions'>;

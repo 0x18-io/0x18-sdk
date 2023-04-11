@@ -23,7 +23,7 @@ const ledgerSchema = object({
 
 export interface ILedger extends InferType<typeof ledgerSchema> {}
 
-class Ledger implements IModel {
+export class Ledger implements IModel {
     #dataValues: any;
     #previousDataValues: any;
     #updatableAttributes: Omit<Array<keyof LedgerUpdateInput>, 'id'>;
@@ -132,5 +132,3 @@ class Ledger implements IModel {
         return true;
     }
 }
-
-export default Ledger;

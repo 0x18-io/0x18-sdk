@@ -1,10 +1,10 @@
 import IConfiguration from '../../../configuration/IConfiguration';
 import { LedgerCreateInput, LedgersInput, LedgerEdge, Maybe } from '../../../gql-types';
-import Ledger from './ledger';
+import { Ledger } from './ledger';
 import { ILedgerQueryOptions, ledgerCreate, ledgers } from '../graphql';
 import { IPaginatedResponse } from '../../interfaces';
 
-class Ledgers {
+export class Ledgers {
     public config: IConfiguration;
 
     constructor(config: IConfiguration = {}) {
@@ -47,5 +47,3 @@ class Ledgers {
         };
     }
 }
-
-export default Ledgers;

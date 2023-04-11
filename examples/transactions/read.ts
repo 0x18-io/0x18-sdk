@@ -8,7 +8,7 @@ const ox = new Client({
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.transactions.findAll(
+    const { results } = await ox.transactions.findAll(
         {
             first: 1,
         },
@@ -18,11 +18,10 @@ const ox = new Client({
     );
 
     const singleNode = results[0];
-    const { id } = singleNode;
 
-    console.log(singleNode.id);
-    console.log(singleNode.reference);
-    console.log(singleNode.amount);
-    console.log(singleNode.balance);
-    console.log(singleNode.method);
+    console.log(singleNode?.id);
+    console.log(singleNode?.reference);
+    console.log(singleNode?.amount);
+    console.log(singleNode?.balance);
+    console.log(singleNode?.method);
 })();
