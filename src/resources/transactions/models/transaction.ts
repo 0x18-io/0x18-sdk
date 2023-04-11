@@ -32,7 +32,7 @@ const transactionSchema = object({
 
 export interface ITransaction extends InferType<typeof transactionSchema> {}
 
-class Transaction implements IModel {
+export class Transaction implements IModel {
     #dataValues: any;
     #previousDataValues: any;
     #updatableAttributes: Array<keyof Omit<TransactionUpdateInput, 'id'>>;
@@ -140,5 +140,3 @@ class Transaction implements IModel {
         throw new Error('Transaction archive is not available');
     }
 }
-
-export default Transaction;

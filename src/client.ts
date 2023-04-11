@@ -1,13 +1,13 @@
 import { inRange } from 'lodash';
 import IConfiguration from './configuration/IConfiguration';
-import Wallets from './resources/wallets/models/wallets';
+import { Wallets } from './resources/wallets/models/wallets';
+import { Ledgers } from './resources/ledgers/models/ledgers';
+import { Transactions } from './resources/transactions/models/transactions';
 import graphqlClient from './api';
-import Ledgers from './resources/ledgers/models/ledgers';
-import Transactions from './resources/transactions/models/transactions';
-import GqlClient from './resources/gql-client';
+import { GqlClient } from './resources/gql-client';
 import isPromise from './utils/isPromise';
 
-class Client {
+export class Client {
     public config: IConfiguration;
 
     protected _wallets: Wallets | undefined;
@@ -88,5 +88,3 @@ class Client {
         return this._gqlClient;
     }
 }
-
-export default Client;

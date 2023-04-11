@@ -1,3 +1,1 @@
-import Transaction from './models/transaction';
-
-export default Transaction;
+export { Transaction } from './models/transaction';

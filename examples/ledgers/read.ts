@@ -8,7 +8,7 @@ const ox = new Client({
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.ledgers.findAll(
+    const { results } = await ox.ledgers.findAll(
         {
             first: 1,
         },
@@ -18,11 +18,10 @@ const ox = new Client({
     );
 
     const singleNode = results[0];
-    const { id, description } = singleNode;
     console.log(singleNode);
 
-    console.log(singleNode.id);
-    console.log(singleNode.description);
-    console.log(singleNode.displayName);
-    console.log(singleNode.reference);
+    console.log(singleNode?.id);
+    console.log(singleNode?.description);
+    console.log(singleNode?.displayName);
+    console.log(singleNode?.reference);
 })();

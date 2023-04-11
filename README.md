@@ -9,7 +9,7 @@ More documentation about specific features can be found in official documentatio
 # Installing
 
 ```
-npm i @official-0x18/sdk
+npm i @official-0x18/0x18-api-client
 ```
 
 # Usage
@@ -17,7 +17,7 @@ npm i @official-0x18/sdk
 To use SDK client has to be always initialized. It is configured using your organization API key, that you can find in the hex panel.
 
 ```javascript
-const { Client } = require('@official-0x18/sdk');
+const { Client } = require('@official-0x18/0x18-api-client');
 
 const ox = new Client({ apiKey: <org-api-key> });
 ```
@@ -25,7 +25,7 @@ const ox = new Client({ apiKey: <org-api-key> });
 For ES modules
 
 ```javascript
-import { Client } from '@official-0x18/sdk';
+import { Client } from '@official-0x18/0x18-api-client';
 
 const ox = new Client({ apiKey: <org-api-key> });
 ```
@@ -70,7 +70,7 @@ const wallet = await ox.ledgers.create({ displayName: 'HelloWorld!' });
 Although a model is a class, you should not create instances by using the `new` operator directly. Instead, the `build` method should be used:
 
 ```javascript
-const { Ledger } = require('@official-0x18/sdk');
+const { Ledger } = require('@official-0x18/0x18-api-client');
 
 const ledger = Ledger.build({ displayName: 'HelloWorld!' });
 console.log(ledger instanceof Ledger); // true
@@ -91,7 +91,7 @@ Note, from the usage of `await` in the snippet above, that `save` is an asynchro
 Here is the `create` method, which combines the `build` and `save` methods shown above into a single method:
 
 ```javascript
-const { Ledger } = require('@official-0x18/sdk');
+const { Ledger } = require('@official-0x18/0x18-api-client');
 
 const ledger = await Ledger.create({ displayName: 'HelloWorld!' });
 // HelloWorld! exists in the API now!

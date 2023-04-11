@@ -1,10 +1,10 @@
 import IConfiguration from '../../../configuration/IConfiguration';
-import Wallet from './wallet';
+import { Wallet } from './wallet';
 import { WalletEdge, WalletsInput, WalletCreateInput, Maybe } from '../../../gql-types';
 import { IWalletQueryOptions, walletCreate, wallets } from '../graphql';
 import { IPaginatedResponse } from '../../interfaces';
 
-class Wallets {
+export class Wallets {
     public config: IConfiguration;
 
     constructor(config: IConfiguration = {}) {
@@ -45,5 +45,3 @@ class Wallets {
         };
     }
 }
-
-export default Wallets;

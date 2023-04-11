@@ -1,6 +1,4 @@
-import Client from './src/client';
-import Wallet from './src/resources/wallets';
-import Ledger from './src/resources/ledgers';
-import Transaction from './src/resources/transactions';
-
-export { Client, Wallet, Ledger, Transaction };
+export { Client } from './src/client';
+export { Wallet } from './src/resources/wallets';
+export { Ledger } from './src/resources/ledgers';
+export { Transaction } from './src/resources/transactions';
