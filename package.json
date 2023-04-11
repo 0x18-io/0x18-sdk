@@ -1,7 +1,7 @@
 {
     "name": "@official-0x18/0x18-api-client",
     "version": "1.0.0-alpha.0",
-    "description": "Official 0x18-sdk",
+    "description": "Official 0x18-api-client",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "module": "index.ts",
