@@ -4,6 +4,7 @@ import { date, number, object, string, InferType } from 'yup';
 import { IModel, IPaginatedResponse } from '../../interfaces';
 import { walletArchive, walletCreate, walletLedgers, walletUpdate } from '../graphql';
 import { Ledger } from '../../ledgers';
+import { WalletUpdateInput } from '../../../gql-types';
 
 const walletSchema = object({
     id: string().notRequired(),
@@ -22,10 +23,15 @@ export interface IWallet extends InferType<typeof walletSchema> {
 }
 
 export class Wallet implements IModel {
+    #updatableAttributes: Omit<Array<keyof WalletUpdateInput>, 'id'> = [
+        'metadata',
+        'reference',
+        'description',
+        'displayName',
+    ];
+    #updatingSemaphore: Semaphore = new Semaphore(1);
     #dataValues: any;
     #previousDataValues: any;
-    #updatableAttributes: string[];
-    #updatingSemaphore: Semaphore;
 
     id?: string;
     reference?: string;
@@ -38,15 +44,7 @@ export class Wallet implements IModel {
     createdAt?: Date;
     ledgers?: IPaginatedResponse<Ledger>;
 
-    private constructor(wallet: any) {
-        Object.assign(this, wallet);
-
-        this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
-        this.#updatingSemaphore = new Semaphore(1);
-
-        this.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet));
-        this.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
-    }
+    private constructor() {}
 
     #init(wallet: any) {
         Object.assign(this, wallet);
@@ -55,14 +53,18 @@ export class Wallet implements IModel {
     }
 
     static build(wallet: any): Wallet {
-        const instance = new Wallet(wallet);
+        const instance = new Wallet();
 
         Object.assign(instance, wallet);
 
-        instance.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet));
-        instance.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
+        instance.#previousDataValues = _.cloneDeep(wallet);
+        instance.#dataValues = _.cloneDeep(wallet);
 
         return instance;
+    }
+
+    static validate(wallet: any) {
+        walletSchema.validateSync(wallet);
     }
 
     static async create(wallet: any): Promise<Wallet> {
@@ -100,9 +102,12 @@ export class Wallet implements IModel {
     async save() {
         // If operation is already running we do nothing
         const didAcquireLock = await this.#updatingSemaphore.waitFor(0);
+
         if (!didAcquireLock) {
             return false;
         }
+
+        Wallet.validate(this);
 
         try {
             return await this.#saveHttp();

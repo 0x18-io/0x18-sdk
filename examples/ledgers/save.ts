@@ -8,7 +8,7 @@ const ox = new Client({
 });
 
 (async () => {
-    const { results, pageInfo } = await ox.ledgers.findAll(
+    const { results } = await ox.ledgers.findAll(
         {
             first: 1,
         },
@@ -17,7 +17,7 @@ const ox = new Client({
         }
     );
 
-    const singleNode = results[0];
+    const singleNode = results[0]!;
     console.log('FIRST FETCH', singleNode);
     console.log(singleNode);
     // TODO: fix
