@@ -12,7 +12,10 @@ export class Wallets {
     }
 
     async create(wallet: WalletCreateInput) {
+        Wallet.validate(wallet);
+
         const walletGql = await walletCreate(wallet);
+
         return Wallet.build(walletGql);
     }
 

@@ -75,6 +75,10 @@ export class Transaction implements IModel {
         return new Transaction(transaction);
     }
 
+    static validate(transaction: any) {
+        transactionSchema.validateSync(transaction);
+    }
+
     static async create(transaction: any): Promise<Transaction> {
         const instance = this.build(transaction);
         await instance.save();
@@ -121,7 +125,7 @@ export class Transaction implements IModel {
             return false;
         }
 
-        this.validate();
+        Transaction.validate(this);
 
         try {
             return await this.#saveHttp();
@@ -134,9 +138,5 @@ export class Transaction implements IModel {
 
     async archive() {
         throw new Error('Transaction archive is not available');
-    }
-
-    validate() {
-        transactionSchema.validateSync(this);
     }
 }

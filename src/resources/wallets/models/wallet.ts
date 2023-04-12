@@ -58,6 +58,10 @@ export class Wallet implements IModel {
         return new Wallet(wallet);
     }
 
+    static validate(wallet: any) {
+        walletSchema.validateSync(wallet);
+    }
+
     static async create(wallet: any): Promise<Wallet> {
         const instance = this.build(wallet);
         await instance.save();
@@ -93,9 +97,12 @@ export class Wallet implements IModel {
     async save() {
         // If operation is already running we do nothing
         const didAcquireLock = await this.#updatingSemaphore.waitFor(0);
+
         if (!didAcquireLock) {
             return false;
         }
+
+        Wallet.validate(this);
 
         try {
             return await this.#saveHttp();
@@ -123,9 +130,5 @@ export class Wallet implements IModel {
         this.ledgers = this.#dataValues.ledgers;
 
         return this.#dataValues.ledgers;
-    }
-
-    validate() {
-        walletSchema.validateSync(this);
     }
 }

@@ -26,7 +26,10 @@ export class Transactions {
         transactions: TransactionCreateItem[],
         options: ITransactionCreateOptions = { atomic: false }
     ) {
+        transactions.forEach((t) => Transaction.validate(t));
+
         const transactionsGql = await transactionCreate(transactions, options);
+
         return transactionsGql.transactions.map((t) => Transaction.build(t));
     }
 
@@ -34,7 +37,10 @@ export class Transactions {
         transaction: TransactionCreateItem,
         options: ITransactionCreateOptions = { atomic: false }
     ) {
+        Transaction.validate(transaction);
+
         const transactionsGql = await transactionCreate([transaction], options);
+
         return Transaction.build(transactionsGql.transactions[0]);
     }
 

@@ -64,6 +64,10 @@ export class Ledger implements IModel {
         return new Ledger(ledger);
     }
 
+    static validate(ledger: any) {
+        ledgerSchema.validateSync(ledger);
+    }
+
     static async create(ledger: any): Promise<Ledger> {
         const instance = this.build(ledger);
         await instance.save();
@@ -112,7 +116,7 @@ export class Ledger implements IModel {
         }
 
         // Call validate before saving
-        this.validate();
+        Ledger.validate(this);
 
         try {
             return await this.#saveHttp();
@@ -126,9 +130,5 @@ export class Ledger implements IModel {
     async archive() {
         await ledgerArchive({ id: this.#dataValues.id });
         return true;
-    }
-
-    validate() {
-        ledgerSchema.validateSync(this);
     }
 }
