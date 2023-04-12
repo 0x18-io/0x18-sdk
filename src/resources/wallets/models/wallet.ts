@@ -44,8 +44,8 @@ export class Wallet implements IModel {
         this.#updatableAttributes = ['metadata', 'reference', 'description', 'displayName'];
         this.#updatingSemaphore = new Semaphore(1);
 
-        this.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet));
-        this.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
+        this.#previousDataValues = _.cloneDeep(wallet);
+        this.#dataValues = _.cloneDeep(wallet);
     }
 
     #init(wallet: any) {
@@ -55,14 +55,7 @@ export class Wallet implements IModel {
     }
 
     static build(wallet: any): Wallet {
-        const instance = new Wallet(wallet);
-
-        Object.assign(instance, wallet);
-
-        instance.#previousDataValues = walletSchema.cast(_.cloneDeep(wallet));
-        instance.#dataValues = walletSchema.cast(_.cloneDeep(wallet));
-
-        return instance;
+        return new Wallet(wallet);
     }
 
     static async create(wallet: any): Promise<Wallet> {
@@ -130,5 +123,9 @@ export class Wallet implements IModel {
         this.ledgers = this.#dataValues.ledgers;
 
         return this.#dataValues.ledgers;
+    }
+
+    validate() {
+        walletSchema.validateSync(this);
     }
 }

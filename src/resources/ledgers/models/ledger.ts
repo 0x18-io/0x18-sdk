@@ -56,19 +56,12 @@ export class Ledger implements IModel {
         ];
 
         this.#updatingSemaphore = new Semaphore(1);
-        this.#previousDataValues = ledgerSchema.cast(_.cloneDeep(ledger));
-        this.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
+        this.#previousDataValues = _.cloneDeep(ledger);
+        this.#dataValues = _.cloneDeep(ledger);
     }
 
     static build(ledger: any): Ledger {
-        const instance = new Ledger(ledger);
-
-        Object.assign(instance, ledger);
-
-        instance.#previousDataValues = ledgerSchema.cast(_.cloneDeep(ledger));
-        instance.#dataValues = ledgerSchema.cast(_.cloneDeep(ledger));
-
-        return instance;
+        return new Ledger(ledger);
     }
 
     static async create(ledger: any): Promise<Ledger> {
@@ -118,6 +111,9 @@ export class Ledger implements IModel {
             return false;
         }
 
+        // Call validate before saving
+        this.validate();
+
         try {
             return await this.#saveHttp();
         } catch (e) {
@@ -130,5 +126,9 @@ export class Ledger implements IModel {
     async archive() {
         await ledgerArchive({ id: this.#dataValues.id });
         return true;
+    }
+
+    validate() {
+        ledgerSchema.validateSync(this);
     }
 }

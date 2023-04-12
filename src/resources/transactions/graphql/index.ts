@@ -44,6 +44,8 @@ export const transactionCreate = async (
         'tags',
         'description',
         'reference',
+        'walletId',
+        'ledgerId',
     ];
 
     const { query, variables } = gqlBuilder.mutation(
