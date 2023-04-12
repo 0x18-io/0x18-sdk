@@ -33,10 +33,13 @@ const transactionSchema = object({
 export interface ITransaction extends InferType<typeof transactionSchema> {}
 
 export class Transaction implements IModel {
+    #updatableAttributes: Array<keyof Omit<TransactionUpdateInput, 'id'>> = [
+        'description',
+        'reference',
+    ];
+    #updatingSemaphore: Semaphore = new Semaphore(1);
     #dataValues: any;
     #previousDataValues: any;
-    #updatableAttributes: Array<keyof Omit<TransactionUpdateInput, 'id'>>;
-    #updatingSemaphore: Semaphore;
 
     id?: string;
     hash?: string;
@@ -56,15 +59,7 @@ export class Transaction implements IModel {
     walletId?: string;
     idempotencyKey?: string;
 
-    private constructor(transaction: Partial<InferType<typeof transactionSchema>>) {
-        Object.assign(this, transaction);
-
-        this.#updatableAttributes = ['description', 'reference'];
-
-        this.#updatingSemaphore = new Semaphore(1);
-        this.#previousDataValues = _.cloneDeep(transaction);
-        this.#dataValues = _.cloneDeep(transaction);
-    }
+    private constructor() {}
 
     static readonly METHODS = {
         MINT: TransactionMethods.Mint,
@@ -72,7 +67,14 @@ export class Transaction implements IModel {
     };
 
     static build(transaction: any): Transaction {
-        return new Transaction(transaction);
+        const instance = new Transaction();
+
+        Object.assign(instance, transaction);
+
+        instance.#previousDataValues = _.cloneDeep(transaction);
+        instance.#dataValues = _.cloneDeep(transaction);
+
+        return instance;
     }
 
     static validate(transaction: any) {

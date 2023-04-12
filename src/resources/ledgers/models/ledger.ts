@@ -24,10 +24,17 @@ const ledgerSchema = object({
 export interface ILedger extends InferType<typeof ledgerSchema> {}
 
 export class Ledger implements IModel {
+    #updatableAttributes: Omit<Array<keyof LedgerUpdateInput>, 'id'> = [
+        'description',
+        'displayName',
+        'precision',
+        'prefix',
+        'reference',
+        'suffix',
+    ];
+    #updatingSemaphore: Semaphore = new Semaphore(1);
     #dataValues: any;
     #previousDataValues: any;
-    #updatableAttributes: Omit<Array<keyof LedgerUpdateInput>, 'id'>;
-    #updatingSemaphore: Semaphore;
 
     id?: string;
     transactionsCount?: number;
@@ -43,25 +50,16 @@ export class Ledger implements IModel {
     avatarUrl?: string;
     balance?: string;
 
-    private constructor(ledger: any) {
-        Object.assign(this, ledger);
-
-        this.#updatableAttributes = [
-            'description',
-            'displayName',
-            'precision',
-            'prefix',
-            'reference',
-            'suffix',
-        ];
-
-        this.#updatingSemaphore = new Semaphore(1);
-        this.#previousDataValues = _.cloneDeep(ledger);
-        this.#dataValues = _.cloneDeep(ledger);
-    }
+    private constructor() {}
 
     static build(ledger: any): Ledger {
-        return new Ledger(ledger);
+        const instance = new Ledger();
+        Object.assign(instance, ledger);
+
+        instance.#previousDataValues = _.cloneDeep(ledger);
+        instance.#dataValues = _.cloneDeep(ledger);
+
+        return instance;
     }
 
     static validate(ledger: any) {
